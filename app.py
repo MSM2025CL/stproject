@@ -11,16 +11,11 @@ import os
 import re
 from pathlib import Path
 import logging
-from dotenv import load_dotenv
 import time
 import traceback
 import search
-from sklearn.feature_extraction.text import TfidfVectorizer
-import pickle
 from PIL import Image
-import base64
-# Load environment variables
-load_dotenv()
+import gdown
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -31,7 +26,13 @@ logger = logging.getLogger(__name__)
 @st.cache_resource
 def initialize_search_resources(file_path):
     """Initialize search resources like model and index with caching to avoid repeated loading"""
-    df = pd.read_csv(file_path)
+    # Enlace de Google Drive
+    url = 'https://drive.google.com/uc?id=1ifa038bVUpwiZot7Nqm6LMmYSKgyrvZ3'
+
+    # Descargar el archivo CSV de Google Drive
+    output = 'data.csv'  # Ruta donde quieres guardar el archivo descargado
+    gdown.download(url, output, quiet=False)
+    df = pd.read_csv(output)
 
     return df
 
@@ -72,15 +73,6 @@ with col1:
 with col2:
     st.markdown("<h1>Buscador Maestra Online</h1>", unsafe_allow_html=True)
 
-
-# Function to load data
-@st.cache_data
-def load_data(file_path):
-    try:
-        return pd.read_csv(file_path)
-    except Exception as e:
-        st.error(f"Error al cargar los datos: {e}")
-        return None
 
 # Function to highlight search term in text
 def highlight_text(text, search_term):
