@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 def initialize_search_resources(file_path):
     """Initialize search resources like model and index with caching to avoid repeated loading"""
     # Enlace de Google Drive
-    url = 'https://drive.google.com/uc?id=1ifa038bVUpwiZot7Nqm6LMmYSKgyrvZ3'
+    url = st.secrets["url"]["data"]
 
     # Descargar el archivo CSV de Google Drive
     output = 'data.csv'  # Ruta donde quieres guardar el archivo descargado
