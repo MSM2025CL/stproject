@@ -1,0 +1,12 @@
+# Ignore specific file
+tfidf_vec.pkl
+
+# Ignore Datos directory and all its contents
+Datos/
+
+# Ignore embeddings directory and all its contents
+embeddings/
+
+__pycache__/
+
+.streamlit/
