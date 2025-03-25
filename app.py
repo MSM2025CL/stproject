@@ -166,7 +166,7 @@ def main():
                           logica = st.selectbox("", operadores_logicos, key=f'Logica{i}')
                           st.session_state[f'logical_{i}'] = logica
                       else:
-                          logica = st.selectbox("", operadores_logicos, key=f'Logica{i}', index=0, disabled=True)
+                          #logica = st.selectbox("", operadores_logicos, key=f'Logica{i}', index=0, disabled=True)
                           st.session_state[f'logical_{i}'] = ''
                   else:
                       # Contains operator for the first box
@@ -189,7 +189,7 @@ def main():
                           contains_or_not = st.selectbox("", operador_contains[1:], key=f'Contains{i}')
                           st.session_state[f'contains_{i}'] = contains_or_not
                       else:
-                          contains_or_not = st.selectbox("", operador_contains[0:1], key=f'Contains{i}', disabled=True)
+                          #contains_or_not = st.selectbox("", operador_contains[0:1], key=f'Contains{i}', disabled=True)
                           st.session_state[f'contains_{i}'] = ''
               
               # Handle third column in subcols (only for boxes after the first)
@@ -199,7 +199,7 @@ def main():
                           subterm = st.text_input("", value=st.session_state[f'search_{i}'], key=f'SearchTerm{i}')
                           st.session_state[f'search_{i}'] = subterm
                       else:
-                          subterm = st.text_input("", value="", key=f'SearchTerm{i}_disabled', disabled=True)
+                          #subterm = st.text_input("", value="", key=f'SearchTerm{i}_disabled', disabled=True)
                           st.session_state[f'search_{i}'] = ''
       considerar_ofertas = ["Sí", "No"]
       seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
