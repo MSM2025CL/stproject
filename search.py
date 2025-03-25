@@ -18,14 +18,14 @@ def key_search(nsearch, options, df, considerar_ofertas):
         if options[f'search_{i}'] != '':
           if options[f'logical_{i}'] == 'Y':
               if options[f'contains_{i}'] == 'Contiene':                
-                  search_bool = search_bool & (df['search_text'].str.lower().str.contains(options[f'search_{i}'][:-1].lower()))
+                  search_bool = search_bool & (df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower()))
               else:
-                  search_bool = search_bool & (~(df['search_text'].str.lower().str.contains(options[f'search_{i}'][:-1].lower())))
+                  search_bool = search_bool & (~(df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower())))
           elif options[f'logical_{i}'] == 'O':
               if options[f'contains_{i}'] == 'Contiene':
-                  search_bool = search_bool | (df['search_text'].str.lower().str.contains(options[f'search_{i}'][:-1].lower()))
+                  search_bool = search_bool | (df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower()))
               else:
-                  search_bool = search_bool | (~(df['search_text'].str.lower().str.contains(options[f'search_{i}'][:-1].lower())))
+                  search_bool = search_bool | (~(df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower())))
 
         else:
             break
