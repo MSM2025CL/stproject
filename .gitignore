@@ -2,6 +2,6 @@ Datos/
 
 __pycache__/
 
-.streamlit/
+.streamlit/secrets.toml
 
 data.csv
