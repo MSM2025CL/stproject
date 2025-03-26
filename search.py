@@ -33,7 +33,7 @@ def key_search(nsearch, options, df, considerar_ofertas):
 
     df = df[search_bool].drop(columns=['search_text'])
 
-    if considerar_ofertas:
+    if considerar_ofertas == "Sí":
         # Agregar una columna auxiliar con el menor valor entre A y B
         df['Min_Val'] = df[['Precio MSM', 'Precio Oferta']].min(axis=1)
 
@@ -43,7 +43,7 @@ def key_search(nsearch, options, df, considerar_ofertas):
         # Eliminar la columna auxiliar si no se necesita
         df = df.drop(columns=['Min_Val'])
     else:
-        df = df.sort_values(by=df['Precio MSM'], ascending=True)
+        df = df.sort_values(by='Precio MSM', ascending=True)
     return df
 
 

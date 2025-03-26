@@ -100,23 +100,25 @@ def main():
     #""", unsafe_allow_html=True)
     # Verificar si el usuario está autenticado
     if "authenticated" not in st.session_state or not st.session_state["authenticated"]:
-        # Si no está autenticado, mostrar el formulario de login
-        st.title("🔒 Inicio de Sesión")
-        
-        # Obtener credenciales encriptadas desde secrets.toml
-        users = st.secrets["credentials"]
-     
-        # Crear formulario de login
-        username = st.text_input("👤 Usuario")
-        password = st.text_input("🔑 Contraseña", type="password")
-        # Crear botón de login
-        if st.button("Iniciar sesión"):
-            if username in users and password == users[username]:
-                st.success(f"✅ Bienvenido, {username}!")
-                st.session_state["authenticated"] = True  # Guardar sesión
-                st.rerun()  # Recargar la app para mostrar el contenido
-            else:
-                st.error("❌ Usuario o contraseña incorrectos")
+        _, col, _ = st.columns([2, 1, 2])
+        with col:
+          # Si no está autenticado, mostrar el formulario de login
+          st.title("Iniciar Sesión")
+          
+          # Obtener credenciales encriptadas desde secrets.toml
+          users = st.secrets["credentials"]
+      
+          # Crear formulario de login
+          username = st.text_input("👤 Usuario")
+          password = st.text_input("🔑 Contraseña", type="password")
+          # Crear botón de login
+          if st.button("Iniciar sesión"):
+              if username in users and password == users[username]:
+                  st.success(f"✅ Bienvenido, {username}!")
+                  st.session_state["authenticated"] = True  # Guardar sesión
+                  st.rerun()  # Recargar la app para mostrar el contenido
+              else:
+                  st.error("❌ Usuario o contraseña incorrectos")
     else:
      
       # Initialize session state variables
@@ -204,7 +206,7 @@ def main():
       seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
       col1, col2 = st.columns([1, 1])
       with col1:
-          subc = st.columns([1, 1, 1, 1, 1, 1, 1, 1])
+          subc = st.columns([1, 1, 1, 1, 1, 1, 1])
           with subc[0]:              
             # Search button
             search_clicked = st.button("🔍 Buscar")
@@ -248,8 +250,7 @@ def main():
                   # results_df = pd.DataFrame()
                   search_time = time.time() - start_time
 
-                  results_df = search_results.reset_index(drop=True)
-
+                  results_df = search_results
               # Display results count and search time
               st.markdown(f"""
               <div class='card'>
@@ -258,13 +259,12 @@ def main():
               </div>
               """, unsafe_allow_html=True)
               
-              if not results_df.empty:
-                  display_columns = [col for col in results_df.columns if all([col != x for x in ["embedding", "search_text", "embedding_d"]])]
-                  
-                  
-                  # Display results df
-                  st.dataframe(results_df.loc[:, display_columns], height=800, use_container_width=True, column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov")})
-                                  # Mostrar la tabla con Markdown (Streamlit permite HTML en Markdown)
+              if type(results_df) == pd.DataFrame:
+                if not results_df.empty:
+                    results_df = search_results.reset_index(drop=True)                  
+                    
+                    # Display results df
+                    st.dataframe(results_df, height=800, use_container_width=True, column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov")})
 
 
               else:
