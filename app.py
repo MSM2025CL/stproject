@@ -243,7 +243,7 @@ def main():
                   # Buscar los vecinos más cercanos
                   #search_results = search.do_search(search_term, model, vectorizer, index, indices_validos, df, embeddings=[embeddings_allinfo, embeddings_description, embeddings_tfidf], top_n=3000, show=200, options=[seleccion_ofertas])
 
-                  search_results = search.key_search(nsearch_boxes, st.session_state, df, considerar_ofertas)
+                  search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas)
                   #if search_results:
                   # results_index = [x[0] for x in search_results]
                   # results_df = df.iloc[results_index]
