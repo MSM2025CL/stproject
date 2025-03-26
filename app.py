@@ -16,6 +16,8 @@ import traceback
 import search
 from PIL import Image
 import gdown
+import warnings
+warnings.filterwarnings("ignore")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
