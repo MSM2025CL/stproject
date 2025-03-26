@@ -204,7 +204,7 @@ def main():
       seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
       col1, col2 = st.columns([1, 1])
       with col1:
-          subc = st.columns([1, 1, 1, 1, 1, 1, 1])
+          subc = st.columns([1, 1, 1, 1, 1, 1, 1, 1])
           with subc[0]:              
             # Search button
             search_clicked = st.button("🔍 Buscar")
