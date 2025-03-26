@@ -204,7 +204,7 @@ def main():
                           #subterm = st.text_input("", value="", key=f'SearchTerm{i}_disabled', disabled=True)
                           st.session_state[f'search_{i}'] = ''
 
-      considerar_ofertas = ["No", "Sí"]
+      considerar_ofertas = ["Sí", "No"]
       seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
       col1, col2 = st.columns([1, 1])
       with col1:
