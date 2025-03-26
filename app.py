@@ -141,7 +141,7 @@ def main():
       search_cols = st.columns([2, 3, 3, 3])
       
       operadores_logicos = ["", "Y", "O"]
-      operador_contains = ["", "Contiene", "No contiene"]
+      operador_contains = ["Contiene", "No contiene"]
       
       # Create empty subcols dict
       subcols = {i: [] for i in range(nsearch_boxes)}
@@ -184,7 +184,7 @@ def main():
                   else:
                       # Contains operator for boxes after the first
                       if st.session_state[f'logical_{i}'] != '':
-                          contains_or_not = st.selectbox("", operador_contains[1:], key=f'Contains{i}')
+                          contains_or_not = st.selectbox("", operador_contains, key=f'Contains{i}')
                           st.session_state[f'contains_{i}'] = contains_or_not
                       else:
                           #contains_or_not = st.selectbox("", operador_contains[0:1], key=f'Contains{i}', disabled=True)
