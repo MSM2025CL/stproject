@@ -264,7 +264,8 @@ def main():
                     results_df = search_results.reset_index(drop=True)                  
                     
                     # Display results df
-                    st.dataframe(results_df, height=800, use_container_width=True, column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov")})
+                    st.dataframe(results_df.style.format({"Precio MSM": "{:.0f}", "Precio Oferta": "{:.0f}", "Precio Lista": "{:.0f}",
+                                                          'T. Entrega': "{:.0f}"}), height=800, use_container_width=True, column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov")})
 
 
               else:
