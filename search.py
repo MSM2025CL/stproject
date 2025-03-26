@@ -44,6 +44,8 @@ def key_search(nsearch, options, df, considerar_ofertas):
         df = df.drop(columns=['Min_Val'])
     else:
         df = df.sort_values(by='Precio MSM', ascending=True)
+
+    df = df[df['Precio MSM'] > 0]
     return df
 
 
