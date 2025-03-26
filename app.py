@@ -67,7 +67,7 @@ height_ratio = 95 / float(logo.size[1])
 new_width = int(float(logo.size[0]) * height_ratio)
 # Redimensiona la imagen
 resized_logo = logo.resize((new_width, 95), Image.LANCZOS)
-col1, col2 = st.columns([1, 3])
+col1, col2 = st.columns([2, 3])
 with col1:
     st.image(resized_logo)
 with col2:
@@ -105,9 +105,7 @@ def main():
         
         # Obtener credenciales encriptadas desde secrets.toml
         users = st.secrets["credentials"]
-        print(users)
-        
-        
+     
         # Crear formulario de login
         username = st.text_input("👤 Usuario")
         password = st.text_input("🔑 Contraseña", type="password")
@@ -201,11 +199,32 @@ def main():
                       else:
                           #subterm = st.text_input("", value="", key=f'SearchTerm{i}_disabled', disabled=True)
                           st.session_state[f'search_{i}'] = ''
+
       considerar_ofertas = ["Sí", "No"]
       seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
+      col1, col2 = st.columns([1, 1])
+      with col1:
+          subc = st.columns([1, 1, 1, 1, 1, 1, 1])
+          with subc[0]:              
+            # Search button
+            search_clicked = st.button("🔍 Buscar")
 
-      # Search button
-      search_clicked = st.button("🔍 Buscar")
+          with subc[1]:
+            if st.button("Limpiar", key="limpiar"):
+                st.session_state[f'search_0'] = ''
+                st.session_state[f'logical_0'] = ''
+                st.session_state[f'contains_0'] = ''
+                st.session_state[f'search_1'] = ''
+                st.session_state[f'logical_1'] = ''
+                st.session_state[f'contains_1'] = ''
+                st.session_state[f'search_2'] = ''
+                st.session_state[f'logical_2'] = ''
+                st.session_state[f'contains_2'] = ''
+                st.session_state[f'search_3'] = ''
+                st.session_state[f'logical_3'] = ''
+                st.session_state[f'contains_3'] = ''
+                st.rerun()
+
       
       
       # Display results
