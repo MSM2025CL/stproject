@@ -63,6 +63,54 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# CSS más refinado para una apariencia más sutil y elegante
+css = """
+<style>
+    /* Estilos generales para inputs y selectbox */
+    .stTextInput > div > div > input,
+    .stSelectbox > div > div > div {
+        border: 0.3px solid rgba(0, 0, 0, 0.15) !important;
+        border-radius: 4px !important;
+        box-shadow: none !important;
+        transition: border 0.2s ease !important;
+    }
+    
+    /* Efecto hover */
+    .stTextInput > div > div > input:hover,
+    .stSelectbox > div > div > div:hover {
+        border: 0.3px solid rgba(0, 0, 0, 0.25) !important;
+    }
+    
+    /* Efecto focus */
+    .stTextInput > div > div > input:focus,
+    .stSelectbox > div > div > div:focus {
+        border: 0.3px solid rgba(0, 0, 0, 0.2) !important;
+        box-shadow: 0 0 2px rgba(0, 0, 0, 0.05) !important;
+    }
+    
+    /* Estilo para los radio buttons */
+    .stRadio > div {
+        padding: 0.2rem 0 !important;
+    }
+    
+    /* Estilo para el checkbox */
+    .stCheckbox > div > div > label {
+        font-size: 0.9rem !important;
+    }
+    
+    /* Botones */
+    .stButton > button {
+        border: 0.3px solid rgba(0, 0, 0, 0.15) !important;
+        border-radius: 4px !important;
+        box-shadow: none !important;
+        transition: all 0.2s ease !important;
+    }
+</style>
+"""
+
+# Aplicar el CSS personalizado
+st.markdown(css, unsafe_allow_html=True)
+
 logo = Image.open('img/logo.jpeg')
 # Calcula el ancho proporcional para mantener la relación de aspecto
 height_ratio = 95 / float(logo.size[1])
