@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-def key_search(nsearch, options, df, considerar_ofertas):
-    
+def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion):
+
     search_bool = True
 
 
@@ -14,26 +14,42 @@ def key_search(nsearch, options, df, considerar_ofertas):
     else:
         search_bool = ~(df['search_text'].str.lower().str.contains(options[f'search_{0}'].lower()))
 
-    for i in range(1, nsearch):
-        if options[f'search_{i}'] != '':
-          if options[f'logical_{i}'] == 'Y':
-              if options[f'contains_{i}'] == 'Contiene':                
-                  search_bool = search_bool & (df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower()))
-              else:
-                  search_bool = search_bool & (~(df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower())))
-          elif options[f'logical_{i}'] == 'O':
-              if options[f'contains_{i}'] == 'Contiene':
-                  search_bool = search_bool | (df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower()))
-              else:
-                  search_bool = search_bool | (~(df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower())))
+    if not considerar_descripcion:
+      for i in range(1, nsearch):
+          if options[f'search_{i}'] != '':
+            if options[f'logical_{i}'] == 'Y':
+                if options[f'contains_{i}'] == 'Contiene':                
+                    search_bool = search_bool & (df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower()))
+                else:
+                    search_bool = search_bool & (~(df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower())))
+            elif options[f'logical_{i}'] == 'O':
+                if options[f'contains_{i}'] == 'Contiene':
+                    search_bool = search_bool | (df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower()))
+                else:
+                    search_bool = search_bool | (~(df['search_text'].str.lower().str.contains(options[f'search_{i}'].lower())))
+          else:
+              break
+    else:
+        for i in range(1, nsearch):
+            if options[f'search_{i}'] != '':
+                if options[f'logical_{i}'] == 'Y':
+                    if options[f'contains_{i}'] == 'Contiene':
+                        search_bool = search_bool & (df['Descripcion'].str.lower().str.contains(options[f'search_{i}'].lower()))
+                    else:
+                        search_bool = search_bool & (~(df['Descripcion'].str.lower().str.contains(options[f'search_{i}'].lower())))
+                elif options[f'logical_{i}'] == 'O':
+                    if options[f'contains_{i}'] == 'Contiene':
+                        search_bool = search_bool | (df['Descripcion'].str.lower().str.contains(options[f'search_{i}'].lower()))
+                    else:
+                        search_bool = search_bool | (~(df['Descripcion'].str.lower().str.contains(options[f'search_{i}'].lower())))
+            else:
+                break
 
-        else:
-            break
-    
+                        
 
     df = df[search_bool].drop(columns=['search_text'])
 
-    if considerar_ofertas == "Si":
+    if considerar_ofertas == "Sí":
         # Agregar una columna auxiliar con el menor valor entre A y B
         df['Min_Val'] = df[['Precio MSM', 'Precio Oferta']].min(axis=1)
 

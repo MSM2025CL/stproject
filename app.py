@@ -105,14 +105,16 @@ def main():
         _, col, _ = st.columns([2, 1, 2])
         with col:
           # Si no está autenticado, mostrar el formulario de login
-          st.title("Iniciar Sesión")
+          st.markdown("""
+                  <h3>Iniciar Sesión</h3>
+              """, unsafe_allow_html=True)
           
           # Obtener credenciales encriptadas desde secrets.toml
           users = st.secrets["credentials"]
       
           # Crear formulario de login
-          username = st.text_input("👤 Usuario")
-          password = st.text_input("🔑 Contraseña", type="password")
+          username = st.text_input("Usuario")
+          password = st.text_input("Contraseña", type="password")
           # Crear botón de login
           if st.button("Iniciar sesión"):
               if username in users and password == users[username]:
@@ -140,7 +142,19 @@ def main():
       
       # Load resources - CACHED to prevent reloading every time
       df = initialize_search_resources(file_path)
-      
+
+      # Inicializar variables del estado para búsqueda y resultados
+      if 'search_results' not in st.session_state:
+          st.session_state['search_results'] = None
+      if 'search_performed' not in st.session_state:
+          st.session_state['search_performed'] = False
+      if 'all_providers' not in st.session_state:
+          st.session_state['all_providers'] = ['Todos'] + sorted(list(df['Proveedor'].unique()))
+      if 'result_providers' not in st.session_state:
+          st.session_state['result_providers'] = ['Todos']
+      if 'post_search_provider' not in st.session_state:
+          st.session_state['post_search_provider'] = 'Todos'
+
       # Set up search columns
       search_cols = st.columns([2, 3, 3, 3])
       
@@ -204,8 +218,17 @@ def main():
                           #subterm = st.text_input("", value="", key=f'SearchTerm{i}_disabled', disabled=True)
                           st.session_state[f'search_{i}'] = ''
 
-      considerar_ofertas = ["Si", "No"]
-      seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
+      if "proveedores" not in st.session_state:          
+          st.session_state['proveedores'] = ['Todos'] + sorted(list(df['Proveedor'].unique()))
+          
+      col, _ = st.columns([1, 1])
+      with col:
+          subc = st.columns([1, 1, 1, 1, 1, 1])
+          with subc[0]:              
+            considerar_ofertas = ["No", "Sí"]
+            seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
+      considerar_descripcion = st.checkbox('Buscar sólo en "Descripcion"')
+
       col1, col2 = st.columns([1, 1])
       with col1:
           subc = st.columns([1, 1, 1, 1, 1, 1, 1])
@@ -227,10 +250,14 @@ def main():
                 st.session_state[f'search_3'] = ''
                 st.session_state[f'logical_3'] = ''
                 st.session_state[f'contains_3'] = ''
+                st.session_state['search_results'] = None
+                st.session_state['search_performed'] = False
+                st.session_state['result_providers'] = ['Todos']
+                st.session_state['post_search_provider'] = 'Todos'
+                st.rerun()
                 st.rerun()
 
-      
-      
+
       # Display results
       #if search_clicked or search_term:
       if search_clicked:
@@ -243,40 +270,83 @@ def main():
                   # Buscar los vecinos más cercanos
                   #search_results = search.do_search(search_term, model, vectorizer, index, indices_validos, df, embeddings=[embeddings_allinfo, embeddings_description, embeddings_tfidf], top_n=3000, show=200, options=[seleccion_ofertas])
 
-                  search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas)
-                  #if search_results:
-                  # results_index = [x[0] for x in search_results]
-                  # results_df = df.iloc[results_index]
-                
-                  #else:
-                  # results_df = pd.DataFrame()
+                  # Realizar la búsqueda
+                  search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas, considerar_descripcion)
                   search_time = time.time() - start_time
 
-                  results_df = search_results
-              # Display results count and search time
+                  # Guardar resultados en el estado de la sesión
+                  st.session_state['search_results'] = search_results
+                  st.session_state['search_performed'] = True
+                  # Actualizar la lista de proveedores disponibles en los resultados
+                  if isinstance(search_results, pd.DataFrame) and not search_results.empty:
+                      st.session_state['result_providers'] = ['Todos'] + sorted(list(search_results['Proveedor'].unique()))
+                  else:
+                      st.session_state['result_providers'] = ['Todos']
+                  
+                  # Reiniciar el filtro post-búsqueda
+                  st.session_state['post_search_provider'] = 'Todos'
+          except Exception as e:
+            st.error(f"Error al realizar la búsqueda: {str(e)}")
+            logger.error(f"Search error: {e}")
+            logger.error(traceback.format_exc())
+       # Mostrar y filtrar resultados si ya se realizó una búsqueda
+      if st.session_state['search_performed'] and st.session_state['search_results'] is not None:
+          results_df = st.session_state['search_results']
+          
+          # Añadir filtro de proveedor post-búsqueda
+          col_filter, _ = st.columns([1, 1])
+          with col_filter:
+              cols = st.columns([1, 1, 1, 1])
+              with cols[0]:
+                # Usamos un selectbox para elegir el proveedor, pero sin callback
+                selected_provider = st.selectbox(
+                    'Filtrar resultados por proveedor:',
+                    st.session_state['result_providers'],
+                    index=st.session_state['result_providers'].index(st.session_state['post_search_provider']),
+                    key='provider_selector'
+                )
+
+          # Añadimos un botón para aplicar el filtro
+          if st.button("Aplicar filtro"):
+              st.session_state['post_search_provider'] = selected_provider
+              st.rerun()
+                  
+          # Actualizamos la variable post_search_provider sin rerun
+          post_search_provider = st.session_state['post_search_provider']
+          
+          # Aplicar filtro post-búsqueda
+          if post_search_provider != 'Todos' and isinstance(results_df, pd.DataFrame) and not results_df.empty:
+              filtered_results = results_df[results_df['Proveedor'] == post_search_provider]
+          else:
+              filtered_results = results_df
+          # Mostrar información de resultados
+          if isinstance(filtered_results, pd.DataFrame):
+              search_time = time.time() - start_time if 'start_time' in locals() else 0
+              
               st.markdown(f"""
               <div class='card'>
-                  <h4>{len(search_results)} productos encontrados</h4>
+                  <h4>{len(filtered_results)} productos encontrados</h4>
                   <p style="color: #666; font-size: 0.8em;">Tiempo de búsqueda: {search_time:.2f} segundos</p>
               </div>
               """, unsafe_allow_html=True)
               
-              if type(results_df) == pd.DataFrame:
-                if not results_df.empty:
-                    results_df = search_results.reset_index(drop=True)                  
-                    
-                    # Display results df
-                    st.dataframe(results_df.style.format({"Precio MSM": "{:.0f}", "Precio Oferta": "{:.0f}", "Precio Lista": "{:.0f}",
-                                                          'T. Entrega': "{:.0f}"}), height=800, use_container_width=True, column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov")})
-
-
+              if not filtered_results.empty:
+                  # Mostrar resultados filtrados
+                  st.dataframe(
+                      filtered_results.reset_index(drop=True).style.format({
+                          "Precio MSM": "{:.0f}", 
+                          "Precio Oferta": "{:.0f}", 
+                          "Precio Lista": "{:.0f}",
+                          'T. Entrega': "{:.0f}"
+                      }), 
+                      height=800, 
+                      use_container_width=True, 
+                      column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov")}
+                  )
               else:
-                  st.info("No se encontraron resultados para la búsqueda.")
-
-          except Exception as e:
-              st.error(f"Error al realizar la búsqueda: {str(e)}")
-              logger.error(f"Search error: {e}")
-              logger.error(traceback.format_exc())
+                  st.info("No se encontraron resultados para el filtro seleccionado.")
+          else:
+              st.info("No se encontraron resultados para la búsqueda.")
 
 if __name__ == "__main__":    
     main()
