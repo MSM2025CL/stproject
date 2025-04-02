@@ -63,6 +63,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+
 # CSS más refinado para una apariencia más sutil y elegante
 css = """
 <style>
@@ -367,7 +368,7 @@ def main():
                       }), 
                       height=800, 
                       use_container_width=True, 
-                      column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov")}
+                      column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)}
                   )
               else:
                   st.info("No se encontraron resultados para el filtro seleccionado.")
