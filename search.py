@@ -7,6 +7,22 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
 
     if buscar_en_prov != 'Todos':
         df = df[df['Proveedor'] == buscar_en_prov]
+        if options[f'search_{0}'].strip() == '':                  
+          if considerar_ofertas == "Sí":
+              # Agregar una columna auxiliar con el menor valor entre A y B
+              df['Min_Val'] = df[['Precio MSM', 'Precio Oferta']].min(axis=1)
+
+              # Ordenar según la nueva columna
+              df = df.sort_values(by='Min_Val', ascending=True)
+
+              # Eliminar la columna auxiliar si no se necesita
+              df = df.drop(columns=['Min_Val'])
+          else:
+              df = df.sort_values(by='Precio MSM', ascending=True)
+
+          df = df[df['Precio MSM'] > 0]
+          return df
+          
     if options[f'search_{0}'] == '':
         return False
     df['search_text'] = df['search_text'].fillna('')

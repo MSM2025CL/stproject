@@ -337,6 +337,8 @@ def main():
                   # Actualizar la lista de proveedores disponibles en los resultados
                   if isinstance(search_results, pd.DataFrame) and not search_results.empty:
                       st.session_state['result_providers'] = ['Todos'] + sorted(list(search_results['Proveedor'].unique()))
+                      if 'Descripcion' in search_results.columns:
+                        search_results = search_results.rename(columns={'Descripcion': 'Nombre Producto'})
                   else:
                       st.session_state['result_providers'] = ['Todos']
                   
@@ -350,8 +352,7 @@ def main():
       if st.session_state['search_performed'] and st.session_state['search_results'] is not None:
           results_df = st.session_state['search_results']
           
-          if 'Descripcion' in results_df.columns:
-              results_df = results_df.rename(columns={'Descripcion': 'Nombre Producto'})
+          
           # Añadir filtro de proveedor post-búsqueda
           col_filter, _ = st.columns([1, 1])
           with col_filter:
