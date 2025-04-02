@@ -1,11 +1,12 @@
 import numpy as np
 import pandas as pd
 
-def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion):
+def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion, buscar_en_prov):
 
     search_bool = True
 
-
+    if buscar_en_prov != 'Todos':
+        df = df[df['Proveedor'] == buscar_en_prov]
     if options[f'search_{0}'] == '':
         return False
     df['search_text'] = df['search_text'].fillna('')

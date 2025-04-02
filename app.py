@@ -203,6 +203,10 @@ def main():
       if 'post_search_provider' not in st.session_state:
           st.session_state['post_search_provider'] = 'Todos'
 
+      # Inicializar variable para almacenar filas seleccionadas
+      if 'selected_rows' not in st.session_state:
+          st.session_state['selected_rows'] = pd.DataFrame()
+
       # Set up search columns
       search_cols = st.columns([2, 3, 3, 3])
       
@@ -271,11 +275,16 @@ def main():
           
       col, _ = st.columns([1, 1])
       with col:
-          subc = st.columns([1, 1, 1, 1, 1, 1])
+          subc = st.columns([1, 1, 1, 1])
           with subc[0]:              
             considerar_ofertas = ["No", "Sí"]
             seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
-      considerar_descripcion = st.checkbox('Buscar sólo en "Descripcion"')
+          with subc[1]:
+            considerar_descripcion = st.checkbox('Buscar sólo en "Nombre Producto"')
+          
+          with subc[2]:
+            provs = ['Todos'] + sorted(list(df['Proveedor'].unique()))
+            buscar_en_prov = st.selectbox('Filtrar Proveedor:', provs, index=0)
 
       col1, col2 = st.columns([1, 1])
       with col1:
@@ -319,7 +328,7 @@ def main():
                   #search_results = search.do_search(search_term, model, vectorizer, index, indices_validos, df, embeddings=[embeddings_allinfo, embeddings_description, embeddings_tfidf], top_n=3000, show=200, options=[seleccion_ofertas])
 
                   # Realizar la búsqueda
-                  search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas, considerar_descripcion)
+                  search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas, considerar_descripcion, buscar_en_prov)
                   search_time = time.time() - start_time
 
                   # Guardar resultados en el estado de la sesión
@@ -341,6 +350,8 @@ def main():
       if st.session_state['search_performed'] and st.session_state['search_results'] is not None:
           results_df = st.session_state['search_results']
           
+          if 'Descripcion' in results_df.columns:
+              results_df = results_df.rename(columns={'Descripcion': 'Nombre Producto'})
           # Añadir filtro de proveedor post-búsqueda
           col_filter, _ = st.columns([1, 1])
           with col_filter:
