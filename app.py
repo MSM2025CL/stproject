@@ -275,7 +275,7 @@ def main():
           
       col, _ = st.columns([1, 1])
       with col:
-          subc = st.columns([1, 1, 1, 1])
+          subc = st.columns([1, 2, 2 ])
           with subc[0]:              
             considerar_ofertas = ["No", "Sí"]
             seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
@@ -283,8 +283,8 @@ def main():
             considerar_descripcion = st.checkbox('Buscar sólo en "Nombre Producto"')
           
           with subc[2]:
-            provs = ['Todos'] + sorted(list(df['Proveedor'].unique()))
-            buscar_en_prov = st.selectbox('Filtrar Proveedor:', provs, index=0)
+            provs = sorted(list(df['Proveedor'].unique()))
+            buscar_en_prov = st.multiselect('Filtrar Proveedor:', provs)
 
       col1, col2 = st.columns([1, 1])
       with col1:
@@ -311,7 +311,6 @@ def main():
                 st.session_state['search_performed'] = False
                 st.session_state['result_providers'] = ['Todos']
                 st.session_state['post_search_provider'] = 'Todos'
-                st.rerun()
                 st.rerun()
 
 

@@ -5,8 +5,8 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
 
     search_bool = True
 
-    if buscar_en_prov != 'Todos':
-        df = df[df['Proveedor'] == buscar_en_prov]
+    if buscar_en_prov != []:
+        df = df[df['Proveedor'].isin(buscar_en_prov)]
         if options[f'search_{0}'].strip() == '':                  
           if considerar_ofertas == "Sí":
               # Agregar una columna auxiliar con el menor valor entre A y B
@@ -22,7 +22,7 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
 
           df = df[df['Precio MSM'] > 0]
           return df
-          
+
     if options[f'search_{0}'] == '':
         return False
     df['search_text'] = df['search_text'].fillna('')
