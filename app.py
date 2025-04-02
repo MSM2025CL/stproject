@@ -270,8 +270,6 @@ def main():
                           #subterm = st.text_input("", value="", key=f'SearchTerm{i}_disabled', disabled=True)
                           st.session_state[f'search_{i}'] = ''
 
-      if "proveedores" not in st.session_state:          
-          st.session_state['proveedores'] = ['Todos'] + sorted(list(df['Proveedor'].unique()))
           
       col, _ = st.columns([1, 1])
       with col:
@@ -335,14 +333,9 @@ def main():
                   st.session_state['search_performed'] = True
                   # Actualizar la lista de proveedores disponibles en los resultados
                   if isinstance(search_results, pd.DataFrame) and not search_results.empty:
-                      st.session_state['result_providers'] = ['Todos'] + sorted(list(search_results['Proveedor'].unique()))
                       if 'Descripcion' in search_results.columns:
                         search_results = search_results.rename(columns={'Descripcion': 'Nombre Producto'})
-                  else:
-                      st.session_state['result_providers'] = ['Todos']
-                  
-                  # Reiniciar el filtro post-búsqueda
-                  st.session_state['post_search_provider'] = 'Todos'
+                
           except Exception as e:
             st.error(f"Error al realizar la búsqueda: {str(e)}")
             logger.error(f"Search error: {e}")
@@ -351,33 +344,7 @@ def main():
       if st.session_state['search_performed'] and st.session_state['search_results'] is not None:
           results_df = st.session_state['search_results']
           
-          
-          # Añadir filtro de proveedor post-búsqueda
-          col_filter, _ = st.columns([1, 1])
-          with col_filter:
-              cols = st.columns([1, 1, 1, 1])
-              with cols[0]:
-                # Usamos un selectbox para elegir el proveedor, pero sin callback
-                selected_provider = st.selectbox(
-                    'Filtrar resultados por proveedor:',
-                    st.session_state['result_providers'],
-                    index=st.session_state['result_providers'].index(st.session_state['post_search_provider']),
-                    key='provider_selector'
-                )
-
-          # Añadimos un botón para aplicar el filtro
-          if st.button("Aplicar filtro"):
-              st.session_state['post_search_provider'] = selected_provider
-              st.rerun()
-                  
-          # Actualizamos la variable post_search_provider sin rerun
-          post_search_provider = st.session_state['post_search_provider']
-          
-          # Aplicar filtro post-búsqueda
-          if post_search_provider != 'Todos' and isinstance(results_df, pd.DataFrame) and not results_df.empty:
-              filtered_results = results_df[results_df['Proveedor'] == post_search_provider]
-          else:
-              filtered_results = results_df
+          filtered_results = results_df
           # Mostrar información de resultados
           if isinstance(filtered_results, pd.DataFrame):
               search_time = time.time() - start_time if 'start_time' in locals() else 0
