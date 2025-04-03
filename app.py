@@ -332,46 +332,73 @@ def main():
                   # Guardar resultados en el estado de la sesión
                   st.session_state['search_results'] = search_results
                   st.session_state['search_performed'] = True
+                  st.session_state['current_page'] = 1
                   # Actualizar la lista de proveedores disponibles en los resultados
                   if isinstance(search_results, pd.DataFrame) and not search_results.empty:
                       if 'Descripcion' in search_results.columns:
                         search_results = search_results.rename(columns={'Descripcion': 'Nombre Producto'})
-                
+
+
+                  
           except Exception as e:
             st.error(f"Error al realizar la búsqueda: {str(e)}")
             logger.error(f"Search error: {e}")
             logger.error(traceback.format_exc())
-       # Mostrar y filtrar resultados si ya se realizó una búsqueda
+      
+      # Mostrar y filtrar resultados si ya se realizó una búsqueda
       if st.session_state['search_performed'] and st.session_state['search_results'] is not None:
-          results_df = st.session_state['search_results']
+          filtered_df = st.session_state['search_results']
+          rows_per_page = 15
+          total_pages = max(1, (len(filtered_df) + rows_per_page - 1) // rows_per_page)
+
+          # Calcular índices para la página actual
+          start_idx = (st.session_state.current_page - 1) * rows_per_page
+          end_idx = min(start_idx + rows_per_page, len(filtered_df))
+          results_df = st.session_state['search_results'].iloc[start_idx:end_idx].copy()          
           
           filtered_results = results_df
           # Mostrar información de resultados
           if isinstance(filtered_results, pd.DataFrame):
               search_time = time.time() - start_time if 'start_time' in locals() else 0
-              
-              st.markdown(f"""
-              <div class='card'>
-                  <h4>{len(filtered_results)} productos encontrados</h4>
-                  <p style="color: #666; font-size: 0.8em;">Tiempo de búsqueda: {search_time:.2f} segundos</p>
-              </div>
-              """, unsafe_allow_html=True)
-              
+                            
               if not filtered_results.empty:
+                               
                   # Mostrar resultados filtrados
-                  st.dataframe(
+                  st.data_editor(
                       filtered_results.reset_index(drop=True).style.format({
                           "Precio MSM": "{:.0f}", 
                           "Precio Oferta": "{:.0f}", 
                           "Precio Lista": "{:.0f}",
                           'T. Entrega': "{:.0f}"
                       }), 
-                      height=800, 
+                      height=600, 
                       use_container_width=True, 
-                      column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)}
+                      column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
+                      disabled=True
                   )
               else:
                   st.info("No se encontraron resultados para el filtro seleccionado.")
+              
+              col_left, col_right = st.columns([1, 1])
+              with col_left:
+                  subcs = st.columns([1, 1, 1, 1, 1, 1])
+                  with subcs[0]:
+                      st.write(f"Página {st.session_state.current_page} de {total_pages}")
+              with col_right:
+                  subcs = st.columns([2, 2, 2, 4, 2, 2])
+
+                  col1, col2, col3 = subcs[-3], subcs[-2], subcs[-1]
+
+                  with col2:
+                      if st.button("← Anterior") and st.session_state.current_page > 1:
+                          st.session_state.current_page -= 1
+
+
+
+                  with col3:
+                      if st.button("Siguiente →") and st.session_state.current_page < total_pages:
+                          st.session_state.current_page += 1
+
           else:
               st.info("No se encontraron resultados para la búsqueda.")
 
