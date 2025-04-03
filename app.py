@@ -348,7 +348,7 @@ def main():
       # Mostrar y filtrar resultados si ya se realizó una búsqueda
       if st.session_state['search_performed'] and st.session_state['search_results'] is not None:
           filtered_df = st.session_state['search_results']
-          rows_per_page = 15
+          rows_per_page = 30
           total_pages = max(1, (len(filtered_df) + rows_per_page - 1) // rows_per_page)
 
           # Calcular índices para la página actual
