@@ -371,7 +371,7 @@ def main():
                           "Precio Lista": "{:.0f}",
                           'T. Entrega': "{:.0f}"
                       }), 
-                      height=600, 
+                      height=900, 
                       use_container_width=True, 
                       column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
                       disabled=True
