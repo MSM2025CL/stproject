@@ -392,13 +392,13 @@ def main():
                   with col2:
                       if st.button("← Anterior") and st.session_state.current_page > 1:
                           st.session_state.current_page -= 1
-
+                          st.rerun()
 
 
                   with col3:
                       if st.button("Siguiente →") and st.session_state.current_page < total_pages:
                           st.session_state.current_page += 1
-
+                          st.rerun()
           else:
               st.info("No se encontraron resultados para la búsqueda.")
 
