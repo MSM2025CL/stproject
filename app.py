@@ -17,12 +17,14 @@ import search
 from PIL import Image
 import gdown
 import warnings
+
 warnings.filterwarnings("ignore")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+    
     
 # Function to initialize index and model - cache this to avoid reloading
 @st.cache_resource
@@ -363,19 +365,19 @@ def main():
                             
               if not filtered_results.empty:
                                
-                  # Mostrar resultados filtrados
-                  st.data_editor(
-                      filtered_results.reset_index(drop=True).style.format({
-                          "Precio MSM": "{:.0f}", 
-                          "Precio Oferta": "{:.0f}", 
-                          "Precio Lista": "{:.0f}",
-                          'T. Entrega': "{:.0f}"
-                      }), 
-                      height=900, 
-                      use_container_width=True, 
-                      column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
-                      disabled=True
-                  )
+                st.data_editor(
+                    filtered_results.reset_index(drop=True).style.format({
+                        "Precio MSM": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "", 
+                        "Precio Oferta": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "", 
+                        "Precio Lista": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "",
+                        'T. Entrega': "{:.0f}",
+                        "Stock": lambda x: f"{float(x):.0f}" if pd.notnull(x) and str(x).strip() and str(x).replace('.', '', 1).isdigit() else x
+                    }), 
+                    height=900, 
+                    use_container_width=True, 
+                    column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
+                    disabled=True
+                )
               else:
                   st.info("No se encontraron resultados para el filtro seleccionado.")
               
