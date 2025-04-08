@@ -21,6 +21,7 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
               df = df.sort_values(by='Precio MSM', ascending=True)
 
           df = df[df['Precio MSM'] > 0]
+          df = df.drop(columns=['search_text'])
           return df
 
     if options[f'search_{0}'] == '':
