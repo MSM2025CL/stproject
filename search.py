@@ -13,12 +13,12 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
               df['Min_Val'] = df[['Precio MSM', 'Precio Oferta']].min(axis=1)
 
               # Ordenar según la nueva columna
-              df = df.sort_values(by='Min_Val', ascending=True)
+              df = df.sort_values(by=['Min_Val', 'Descripcion'], ascending=True)
 
               # Eliminar la columna auxiliar si no se necesita
               df = df.drop(columns=['Min_Val'])
           else:
-              df = df.sort_values(by='Precio MSM', ascending=True)
+              df = df.sort_values(by=['Precio MSM', 'Descripcion'], ascending=True)
 
           df = df[df['Precio MSM'] > 0]
           df = df.drop(columns=['search_text'])
@@ -72,12 +72,12 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
         df['Min_Val'] = df[['Precio MSM', 'Precio Oferta']].min(axis=1)
 
         # Ordenar según la nueva columna
-        df = df.sort_values(by='Min_Val', ascending=True)
+        df = df.sort_values(by=['Min_Val', 'Descripcion'], ascending=True)
 
         # Eliminar la columna auxiliar si no se necesita
         df = df.drop(columns=['Min_Val'])
     else:
-        df = df.sort_values(by='Precio MSM', ascending=True)
+        df = df.sort_values(by=['Precio MSM', 'Descripcion'], ascending=True)
 
     df = df[df['Precio MSM'] > 0]
     return df
