@@ -326,9 +326,9 @@ def main():
                           st.session_state[f'search_{i}'] = ''
 
           
-      col, _ = st.columns([1, 1])
+      col, _ = st.columns([1.5, 1])
       with col:
-          subc = st.columns([2, 2, 2, 2])
+          subc = st.columns([1.5, 2, 2.5, 2])
           with subc[0]:              
             considerar_ofertas = ["No", "Sí"]
             seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
