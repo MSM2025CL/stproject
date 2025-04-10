@@ -17,6 +17,8 @@ import search
 from PIL import Image
 import gdown
 import warnings
+import requests
+import base64
 
 warnings.filterwarnings("ignore")
 
@@ -39,6 +41,54 @@ def initialize_search_resources(file_path):
     df = pd.read_csv(output)
 
     return df
+
+# URL del archivo de fuente
+font_url = "https://github.com/jondot/dotfiles/raw/master/.fonts/calibri.ttf"
+
+# Función para descargar y guardar el archivo
+def download_font(url, local_path="calibri.ttf"):
+    if not os.path.exists(local_path):
+        response = requests.get(url)
+        if response.status_code == 200:
+            with open(local_path, "wb") as f:
+                f.write(response.content)
+            print(f"Fuente descargada y guardada en {local_path}")
+        else:
+            print(f"Error al descargar la fuente: {response.status_code}")
+            return None
+    return local_path
+
+# Función para convertir el archivo de fuente a base64
+def get_font_base64(file_path):
+    with open(file_path, "rb") as f:
+        font_bytes = f.read()
+    return base64.b64encode(font_bytes).decode()
+
+# Descargar y obtener la fuente en base64
+font_path = download_font(font_url)
+if font_path:
+    font_base64 = get_font_base64(font_path)
+    
+    # Aplicar el CSS con @font-face
+    st.markdown(f"""
+    <style>
+        @font-face {{
+            font-family: 'Calibri';
+            src: url(data:font/truetype;base64,{font_base64}) format('truetype');
+            font-weight: normal;
+            font-style: normal;
+        }}
+        
+        .stDataEditor {{
+            font-family: 'Calibri', sans-serif !important;
+            font-size: 11px !important;
+        }}
+        .stDataEditor div[data-testid="stDataEditorCell"] {{
+            font-family: 'Calibri', sans-serif !important;
+            font-size: 11px !important;
+        }}
+    </style>
+    """, unsafe_allow_html=True)
 
 st.markdown(
     """
@@ -113,6 +163,8 @@ css = """
 
 # Aplicar el CSS personalizado
 st.markdown(css, unsafe_allow_html=True)
+
+
 
 logo = Image.open('img/logo.jpeg')
 # Calcula el ancho proporcional para mantener la relación de aspecto
@@ -211,9 +263,9 @@ def main():
           st.session_state['selected_rows'] = pd.DataFrame()
 
       # Set up search columns
-      search_cols = st.columns([2, 3, 3, 3])
+      search_cols = st.columns([2.5, 3, 3, 3])
       
-      operadores_logicos = ["", "Y", "O"]
+      operadores_logicos = ["Y", "O"]
       operador_contains = ["Contiene", "No contiene"]
       
       # Create empty subcols dict
@@ -225,30 +277,30 @@ def main():
           with search_cols[i % len(search_cols)]:  # Ensure we don't go out of bounds
               # Create subcols based on search box index
               if i == 0:
-                  subcols[i] = st.columns([1, 1])
+                  subcols[i] = st.columns([0.7, 0.5])
               else:
-                  subcols[i] = st.columns([1, 1, 1])
+                  subcols[i] = st.columns([0.25, 0.9, 0.7])
               
               # Handle first column in subcols
               with subcols[i][0]:
                   if i >= 1:
                       # Logic operator for boxes after the first
                       if st.session_state[f'search_{i-1}'] != '':
-                          logica = st.selectbox("", operadores_logicos, key=f'Logica{i}')
+                          logica = st.radio("", operadores_logicos, key=f'Logica{i}', index=0)
                           st.session_state[f'logical_{i}'] = logica
                       else:
                           #logica = st.selectbox("", operadores_logicos, key=f'Logica{i}', index=0, disabled=True)
                           st.session_state[f'logical_{i}'] = ''
                   else:
                       # Contains operator for the first box
-                      contains_or_not = st.selectbox("", operador_contains, key=f'Contains{i}')
+                      contains_or_not = st.radio("", operador_contains, key=f'Contains{i}')
                       st.session_state[f'contains_{i}'] = contains_or_not
               
               # Handle second column in subcols
               with subcols[i][1]:
                   if i == 0:
                       # Search term for first box
-                      if st.session_state[f'contains_{i}'] != '':
+                      if st.session_state[f'contains_{i}'] != '':                        
                           subterm = st.text_input("", value=st.session_state[f'search_{i}'], key=f'SearchTerm{i}')
                           st.session_state[f'search_{i}'] = subterm
                       else:
@@ -257,7 +309,7 @@ def main():
                   else:
                       # Contains operator for boxes after the first
                       if st.session_state[f'logical_{i}'] != '':
-                          contains_or_not = st.selectbox("", operador_contains, key=f'Contains{i}')
+                          contains_or_not = st.radio("", operador_contains, key=f'Contains{i}')
                           st.session_state[f'contains_{i}'] = contains_or_not
                       else:
                           #contains_or_not = st.selectbox("", operador_contains[0:1], key=f'Contains{i}', disabled=True)
@@ -289,7 +341,7 @@ def main():
 
       col1, col2 = st.columns([1, 1])
       with col1:
-          subc = st.columns([1, 1, 1, 1, 1, 1, 1])
+          subc = st.columns([1, 1, 1, 1, 1, 1])
           with subc[0]:              
             # Search button
             search_clicked = st.button("🔍 Buscar")
@@ -387,7 +439,7 @@ def main():
                   with subcs[0]:
                       st.write(f"Página {st.session_state.current_page} de {total_pages}")
               with col_right:
-                  subcs = st.columns([2, 2, 2, 4, 2, 2])
+                  subcs = st.columns([2, 2, 2, 2, 2, 2])
 
                   col1, col2, col3 = subcs[-3], subcs[-2], subcs[-1]
 
