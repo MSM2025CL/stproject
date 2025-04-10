@@ -42,6 +42,21 @@ def initialize_search_resources(file_path):
 
     return df
 
+# Código para reducir el espacio inferior
+st.markdown("""
+<style>
+    .main .block-container {
+        padding-bottom: 1rem !important;
+    }
+    
+    footer {
+        height: 0.5rem !important;
+        padding: 0 !important;
+        display: none !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # URL del archivo de fuente
 font_url = "https://github.com/jondot/dotfiles/raw/master/.fonts/calibri.ttf"
 
@@ -439,6 +454,30 @@ def main():
           filtered_results = results_df
           # Mostrar información de resultados
           if isinstance(filtered_results, pd.DataFrame):
+              
+                            
+              col_left, col_right = st.columns([1, 1])
+              with col_left:
+                  subcs = st.columns([2, 1, 1, 1, 1, 1])
+              with col_right:
+                  subcs = st.columns([2, 2, 2, 2, 2, 2, 1, 0.5, 0.5])
+
+                  col1, col2, col3 = subcs[-3], subcs[-2], subcs[-1]
+
+                  with col1:
+                      st.write(f"{st.session_state.current_page}/{total_pages}")
+                      
+                  with col2:
+                      if st.button("←") and st.session_state.current_page > 1:
+                          st.session_state.current_page -= 1
+                          st.rerun()
+
+
+                  with col3:
+                      if st.button("→") and st.session_state.current_page < total_pages:
+                          st.session_state.current_page += 1
+                          st.rerun()
+
               search_time = time.time() - start_time if 'start_time' in locals() else 0
                             
               if not filtered_results.empty:
@@ -451,34 +490,14 @@ def main():
                         'T. Entrega': "{:.0f}",
                         "Stock": lambda x: f"{float(x):.0f}" if pd.notnull(x) and str(x).strip() and str(x).replace('.', '', 1).isdigit() else x
                     }), 
-                    height=600, 
+                    height=700, 
                     use_container_width=True, 
                     column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
                     disabled=True
                 )
               else:
                   st.info("No se encontraron resultados para el filtro seleccionado.")
-              
-              col_left, col_right = st.columns([1, 1])
-              with col_left:
-                  subcs = st.columns([1, 1, 1, 1, 1, 1])
-                  with subcs[0]:
-                      st.write(f"Página {st.session_state.current_page} de {total_pages}")
-              with col_right:
-                  subcs = st.columns([2, 2, 2, 2, 2, 2])
 
-                  col1, col2, col3 = subcs[-3], subcs[-2], subcs[-1]
-
-                  with col2:
-                      if st.button("← Anterior") and st.session_state.current_page > 1:
-                          st.session_state.current_page -= 1
-                          st.rerun()
-
-
-                  with col3:
-                      if st.button("Siguiente →") and st.session_state.current_page < total_pages:
-                          st.session_state.current_page += 1
-                          st.rerun()
           else:
               st.info("No se encontraron resultados para la búsqueda.")
 
