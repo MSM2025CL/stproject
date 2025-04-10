@@ -346,7 +346,7 @@ def main():
 
       col1, col2 = st.columns([1, 1])
       with col1:
-          subc = st.columns([1, 1, 1, 1, 1, 1])
+          subc = st.columns([1, 1, 1.1, 0.1, 0.9, 1, 1])
           with subc[0]:              
             # Search button
             search_clicked = st.button("🔍 Buscar")
@@ -370,30 +370,32 @@ def main():
                 st.session_state['result_providers'] = ['Todos']
                 st.session_state['post_search_provider'] = 'Todos'
                 st.rerun()
+          
+          with subc[2]:
 
-      with col2:
-          subc = st.columns([1, 1, 1, 1, 1, 0.1])
-          with subc[-2]:
               buscar_sku = st.text_input(placeholder="Buscar SKU", key='skusearch', label='', label_visibility='collapsed')
-          with subc[-1]:
+          with subc[3]:
               boton_sku = st.button("🔍")
+    
+      with col2:
+          subc = st.columns([1, 1, 1, 1, 0.7, 0.25, 0.25])
 
       if boton_sku:
-          try:
-              sku_results = df[df['Codigo Prov'] == buscar_sku]
-              st.data_editor(sku_results.reset_index(drop=True).style.format({
-                                  "Precio MSM": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "", 
-                                  "Precio Oferta": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "", 
-                                  "Precio Lista": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "",
-                                  'T. Entrega': "{:.0f}",
-                                  "Stock": lambda x: f"{float(x):.0f}" if pd.notnull(x) and str(x).strip() and str(x).replace('.', '', 1).isdigit() else x
-                              }), 
-                              height=690, 
-                              use_container_width=True, 
-                              column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
-                              disabled=True)
-          except:
-              pass
+        try:
+          sku_results = df[df['Codigo Prov'] == buscar_sku]
+          st.data_editor(sku_results.reset_index(drop=True).style.format({
+                              "Precio MSM": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "", 
+                              "Precio Oferta": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "", 
+                              "Precio Lista": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "",
+                              'T. Entrega': "{:.0f}",
+                              "Stock": lambda x: f"{float(x):.0f}" if pd.notnull(x) and str(x).strip() and str(x).replace('.', '', 1).isdigit() else x
+                          }), 
+                          height=690, 
+                          use_container_width=True, 
+                          column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
+                          disabled=True)
+        except:
+            pass
       # Display results
       #if search_clicked or search_term:
       if search_clicked:
@@ -441,28 +443,17 @@ def main():
           # Mostrar información de resultados
           if isinstance(filtered_results, pd.DataFrame):
               
-                            
-              col_left, col_right = st.columns([1, 1])
-              with col_left:
-                  subcs = st.columns([2, 1, 1, 1, 1, 1])
-              with col_right:
-                  subcs = st.columns([2, 2, 2, 2, 2, 2, 1, 0.5, 0.5])
+              with subc[-3]:
+                  st.write(f"Página {st.session_state.current_page}/{total_pages}")
+              with subc[-2]:
+                  if st.button("←") and st.session_state.current_page > 1:
+                    st.session_state.current_page -= 1
+                    st.rerun()
+              with subc[-1]:
+                  if st.button("→") and st.session_state.current_page < total_pages:
+                    st.session_state.current_page += 1
+                    st.rerun()                    
 
-                  col1, col2, col3 = subcs[-3], subcs[-2], subcs[-1]
-
-                  with col1:
-                      st.write(f"{st.session_state.current_page}/{total_pages}")
-                      
-                  with col2:
-                      if st.button("←") and st.session_state.current_page > 1:
-                          st.session_state.current_page -= 1
-                          st.rerun()
-
-
-                  with col3:
-                      if st.button("→") and st.session_state.current_page < total_pages:
-                          st.session_state.current_page += 1
-                          st.rerun()
 
               search_time = time.time() - start_time if 'start_time' in locals() else 0
                             
