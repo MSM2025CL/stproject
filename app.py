@@ -328,7 +328,7 @@ def main():
           
       col, _ = st.columns([1, 1])
       with col:
-          subc = st.columns([1, 2, 2 ])
+          subc = st.columns([2, 2, 2, 2])
           with subc[0]:              
             considerar_ofertas = ["No", "Sí"]
             seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
@@ -338,6 +338,9 @@ def main():
           with subc[2]:
             provs = sorted(list(df['Proveedor'].unique()))
             buscar_en_prov = st.multiselect('Filtrar Proveedor:', provs)
+          
+          with subc[3]:
+            mostrar_stock = st.radio("Mostrar productos sin stock:", considerar_ofertas, horizontal=True)
 
       col1, col2 = st.columns([1, 1])
       with col1:
@@ -366,7 +369,29 @@ def main():
                 st.session_state['post_search_provider'] = 'Todos'
                 st.rerun()
 
+      with col2:
+          subc = st.columns([1, 1, 1, 1, 1, 0.1])
+          with subc[-2]:
+              buscar_sku = st.text_input(placeholder="Buscar SKU", key='skusearch', label='', label_visibility='collapsed')
+          with subc[-1]:
+              boton_sku = st.button("🔍")
 
+      if boton_sku:
+          try:
+              sku_results = df[df['Codigo Prov'] == buscar_sku]
+              st.data_editor(sku_results.reset_index(drop=True).style.format({
+                                  "Precio MSM": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "", 
+                                  "Precio Oferta": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "", 
+                                  "Precio Lista": lambda x: f"{int(x):,}".replace(",", ".") if pd.notnull(x) and x > 0 else "",
+                                  'T. Entrega': "{:.0f}",
+                                  "Stock": lambda x: f"{float(x):.0f}" if pd.notnull(x) and str(x).strip() and str(x).replace('.', '', 1).isdigit() else x
+                              }), 
+                              height=900, 
+                              use_container_width=True, 
+                              column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
+                              disabled=True)
+          except:
+              pass
       # Display results
       #if search_clicked or search_term:
       if search_clicked:
@@ -380,7 +405,7 @@ def main():
                   #search_results = search.do_search(search_term, model, vectorizer, index, indices_validos, df, embeddings=[embeddings_allinfo, embeddings_description, embeddings_tfidf], top_n=3000, show=200, options=[seleccion_ofertas])
 
                   # Realizar la búsqueda
-                  search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas, considerar_descripcion, buscar_en_prov)
+                  search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas, considerar_descripcion, buscar_en_prov, mostrar_stock)
                   search_time = time.time() - start_time
 
                   # Guardar resultados en el estado de la sesión

@@ -1,7 +1,17 @@
 import numpy as np
 import pandas as pd
 
-def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion, buscar_en_prov):
+def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion, buscar_en_prov, mostrar_stock):
+
+    if mostrar_stock == "No":
+      # First ensure the Stock column contains strings
+      df['Stock'] = df['Stock'].astype(str)
+      df = df[df['Stock'] != 0]
+      # Then filter out rows where Stock starts with '0'
+      df = df[~df['Stock'].str.strip().str.startswith('0')]
+        
+      df = df[~(df['Stock'].str.lower().str.contains('agotado'))]
+
 
     search_bool = True
 
