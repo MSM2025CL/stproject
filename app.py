@@ -64,6 +64,7 @@ def get_font_base64(file_path):
         font_bytes = f.read()
     return base64.b64encode(font_bytes).decode()
 
+
 # Descargar y obtener la fuente en base64
 font_path = download_font(font_url)
 if font_path:
@@ -450,7 +451,7 @@ def main():
                         'T. Entrega': "{:.0f}",
                         "Stock": lambda x: f"{float(x):.0f}" if pd.notnull(x) and str(x).strip() and str(x).replace('.', '', 1).isdigit() else x
                     }), 
-                    height=900, 
+                    height=600, 
                     use_container_width=True, 
                     column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
                     disabled=True
