@@ -42,20 +42,6 @@ def initialize_search_resources(file_path):
 
     return df
 
-# Código para reducir el espacio inferior
-st.markdown("""
-<style>
-    .main .block-container {
-        padding-bottom: 1rem !important;
-    }
-    
-    footer {
-        height: 0.5rem !important;
-        padding: 0 !important;
-        display: none !important;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 # URL del archivo de fuente
 font_url = "https://github.com/jondot/dotfiles/raw/master/.fonts/calibri.ttf"
@@ -402,7 +388,7 @@ def main():
                                   'T. Entrega': "{:.0f}",
                                   "Stock": lambda x: f"{float(x):.0f}" if pd.notnull(x) and str(x).strip() and str(x).replace('.', '', 1).isdigit() else x
                               }), 
-                              height=900, 
+                              height=690, 
                               use_container_width=True, 
                               column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
                               disabled=True)
@@ -443,7 +429,7 @@ def main():
       # Mostrar y filtrar resultados si ya se realizó una búsqueda
       if st.session_state['search_performed'] and st.session_state['search_results'] is not None:
           filtered_df = st.session_state['search_results']
-          rows_per_page = 30
+          rows_per_page = 50
           total_pages = max(1, (len(filtered_df) + rows_per_page - 1) // rows_per_page)
 
           # Calcular índices para la página actual
@@ -490,7 +476,7 @@ def main():
                         'T. Entrega': "{:.0f}",
                         "Stock": lambda x: f"{float(x):.0f}" if pd.notnull(x) and str(x).strip() and str(x).replace('.', '', 1).isdigit() else x
                     }), 
-                    height=700, 
+                    height=690, 
                     use_container_width=True, 
                     column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=100)},
                     disabled=True
