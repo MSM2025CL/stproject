@@ -328,7 +328,7 @@ def main():
                           st.session_state[f'search_{i}'] = ''
 
           
-      col, _ = st.columns([1.5, 1])
+      col, colr = st.columns([1.5, 1])
       with col:
           subc = st.columns([1.5, 2, 2.5, 2])
           with subc[0]:              
@@ -344,9 +344,18 @@ def main():
           with subc[3]:
             mostrar_stock = st.radio("Mostrar productos sin stock:", considerar_ofertas, horizontal=True)
 
+      with colr:
+          subc = st.columns([1.5, 1.5, 1, 1, 2, 0.1, 0.9])
+          with subc[-3]:
+            buscar_sku = st.text_input(placeholder="Buscar SKU", key='skusearch', label='', label_visibility='collapsed')
+          with subc[-2]:
+            boton_sku = st.button("🔍")
+
+
       col1, col2 = st.columns([1, 1])
       with col1:
-          subc = st.columns([1, 1, 1.1, 0.1, 0.9, 1, 1])
+          #subc = st.columns([1.5, 1.5, 1.5, 0.1, 0.9, 1, 1])
+          subc = st.columns([1.5, 1.5, 1, 1, 1.5, 0.1, 0.9])
           with subc[0]:              
             # Search button
             search_clicked = st.button("🔍 Buscar")
@@ -371,14 +380,10 @@ def main():
                 st.session_state['post_search_provider'] = 'Todos'
                 st.rerun()
           
-          with subc[2]:
 
-              buscar_sku = st.text_input(placeholder="Buscar SKU", key='skusearch', label='', label_visibility='collapsed')
-          with subc[3]:
-              boton_sku = st.button("🔍")
     
       with col2:
-          subc = st.columns([1, 1, 1, 1, 0.7, 0.25, 0.25])
+          subc = st.columns([1, 1, 1, 1, 1, 0.25, 0.25])
 
       if boton_sku:
         try:
