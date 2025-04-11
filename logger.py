@@ -5,6 +5,7 @@ import datetime
 import json
 import streamlit as st
 import logging
+import pytz
 
 # Configurar logging
 logger = logging.getLogger(__name__)
@@ -90,7 +91,7 @@ def log_search(username, search_params, considerar_ofertas, proveedores):
         search_query = " ".join(search_terms)
         
         # Preparar datos para el log
-        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.datetime.now(pytz.timezone("America/Santiago")).strftime("%Y-%m-%d %H:%M:%S")
         log_data = [timestamp, username]
         for i in range(4):
             if i > 0:
