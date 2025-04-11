@@ -19,6 +19,7 @@ import gdown
 import warnings
 import requests
 import base64
+from logger import log_search
 
 warnings.filterwarnings("ignore")
 
@@ -225,6 +226,7 @@ def main():
               if username in users and password == users[username]:
                   st.success(f"✅ Bienvenido, {username}!")
                   st.session_state["authenticated"] = True  # Guardar sesión
+                  st.session_state["username"] = username
                   st.rerun()  # Recargar la app para mostrar el contenido
               else:
                   st.error("❌ Usuario o contraseña incorrectos")
@@ -273,7 +275,6 @@ def main():
       # Create empty subcols dict
       subcols = {i: [] for i in range(nsearch_boxes)}
       
-      print(df['search_text'].isna().sum())
     # Process each search box
       for i in range(nsearch_boxes):
           with search_cols[i % len(search_cols)]:  # Ensure we don't go out of bounds
@@ -407,15 +408,16 @@ def main():
           try:
               with st.spinner("Buscando productos..."):
 
-                  start_time = time.time()
+                  # Recopilar parámetros de búsqueda para logging
+                  search_params = {}
+                  for i in range(nsearch_boxes):
+                      search_params[f'search_{i}'] = st.session_state.get(f'search_{i}', '')
+                      search_params[f'logical_{i}'] = st.session_state.get(f'logical_{i}', '')
+                      search_params[f'contains_{i}'] = st.session_state.get(f'contains_{i}', '')
 
-
-                  # Buscar los vecinos más cercanos
-                  #search_results = search.do_search(search_term, model, vectorizer, index, indices_validos, df, embeddings=[embeddings_allinfo, embeddings_description, embeddings_tfidf], top_n=3000, show=200, options=[seleccion_ofertas])
 
                   # Realizar la búsqueda
                   search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas, considerar_descripcion, buscar_en_prov, mostrar_stock)
-                  search_time = time.time() - start_time
 
                   # Guardar resultados en el estado de la sesión
                   st.session_state['search_results'] = search_results
@@ -426,7 +428,18 @@ def main():
                       if 'Descripcion' in search_results.columns:
                         search_results = search_results.rename(columns={'Descripcion': 'Nombre Producto'})
 
-
+                                 # Registrar la búsqueda
+                  try:
+                      username = st.session_state.get("username", "usuario_desconocido")
+                      log_search(
+                          username=username,
+                          search_params=search_params,
+                          considerar_ofertas=seleccion_ofertas,
+                          proveedores=buscar_en_prov
+                      )
+                  except Exception as e:
+                      logger.error(f"Error al registrar la búsqueda: {str(e)}")
+                      logger.error(traceback.format_exc())
                   
           except Exception as e:
             st.error(f"Error al realizar la búsqueda: {str(e)}")
