@@ -91,7 +91,7 @@ def log_search(username, search_params, considerar_ofertas, proveedores):
         search_query = " ".join(search_terms)
         
         # Preparar datos para el log
-        timestamp = datetime.datetime.now(pytz.timezone("America/Santiago")).strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.datetime.now(pytz.timezone("America/Santiago")).strftime("%d-%m-%Y %H:%M:%S")
         log_data = [timestamp, username]
         for i in range(4):
             if i > 0:
@@ -147,7 +147,7 @@ def get_search_logs():
         
         # Si el DataFrame no está vacío, convertir timestamp a datetime
         if not df.empty and 'timestamp' in df.columns:
-            df['timestamp'] = pd.to_datetime(df['timestamp'])
+            df['timestamp'] = pd.to_datetime(df['timestamp'], format='%d-%m-%Y %H:%M:%S')
         
         return df
     
