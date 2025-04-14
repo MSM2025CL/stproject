@@ -14,7 +14,6 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
 
 
     search_bool = True
-
     if buscar_en_prov != []:
         df = df[df['Proveedor'].isin(buscar_en_prov)]
         if options[f'search_{0}'].strip() == '':                  
@@ -36,11 +35,20 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
 
     if options[f'search_{0}'] == '':
         return False
+    
     df['search_text'] = df['search_text'].fillna('')
-    if options[f'contains_{0}'] == 'Contiene':
-        search_bool = (df['search_text'].str.lower().str.contains(options[f'search_{0}'].lower()))
+    df['Descripcion'] = df['Descripcion'].fillna('')
+
+    if not considerar_descripcion:
+      if options[f'contains_{0}'] == 'Contiene':
+          search_bool = (df['search_text'].str.lower().str.contains(options[f'search_{0}'].lower()))
+      else:
+          search_bool = ~(df['search_text'].str.lower().str.contains(options[f'search_{0}'].lower()))
     else:
-        search_bool = ~(df['search_text'].str.lower().str.contains(options[f'search_{0}'].lower()))
+      if options[f'contains_{0}'] == 'Contiene':
+          search_bool = (df['Descripcion'].str.lower().str.contains(options[f'search_{0}'].lower()))
+      else:
+          search_bool = ~(df['Descripcion'].str.lower().str.contains(options[f'search_{0}'].lower()))
 
     if not considerar_descripcion:
       for i in range(1, nsearch):
