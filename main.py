@@ -414,12 +414,13 @@ def main():
                                  # Registrar la búsqueda
                   try:
                       username = st.session_state.get("username", "usuario_desconocido")
-                      log_search(
-                          username=username,
-                          search_params=search_params,
-                          considerar_ofertas=seleccion_ofertas,
-                          proveedores=buscar_en_prov
-                      )
+                      if username not in st.secrets["admins"]:
+                        log_search(
+                            username=username,
+                            search_params=search_params,
+                            considerar_ofertas=seleccion_ofertas,
+                            proveedores=buscar_en_prov
+                        )
                   except Exception as e:
                       logger.error(f"Error al registrar la búsqueda: {str(e)}")
                       logger.error(traceback.format_exc())
@@ -455,8 +456,6 @@ def main():
                     st.session_state.current_page += 1
                     st.rerun()                    
 
-
-              search_time = time.time() - start_time if 'start_time' in locals() else 0
                             
               if not filtered_results.empty:
                                
