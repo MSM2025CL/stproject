@@ -34,7 +34,7 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
           return df
 
     if options[f'search_{0}'] == '':
-        return False
+        return pd.DataFrame()
     
     df['search_text'] = df['search_text'].fillna('')
     df['Descripcion'] = df['Descripcion'].fillna('')
