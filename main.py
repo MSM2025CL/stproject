@@ -473,6 +473,35 @@ def main():
                     "Comentario": st.column_config.TextColumn("Comentario", width=200)},
                     disabled=True
                 )
+
+                col1, col2 = st.columns([1, 1])
+                with col2:
+                    subc = st.columns([1, 1, 1, 1, 1, 0.25, 0.25])
+
+                filtered_df = st.session_state['search_results']
+                rows_per_page = 50
+                total_pages = max(1, (len(filtered_df) + rows_per_page - 1) // rows_per_page)
+
+                # Calcular índices para la página actual
+                start_idx = (st.session_state.current_page - 1) * rows_per_page
+                end_idx = min(start_idx + rows_per_page, len(filtered_df))
+                results_df = st.session_state['search_results'].iloc[start_idx:end_idx].copy()          
+                
+                filtered_results = results_df
+                # Mostrar información de resultados
+                if isinstance(filtered_results, pd.DataFrame):
+                    
+                    with subc[-3]:
+                        st.write(f"Página {st.session_state.current_page}/{total_pages}")
+                    with subc[-2]:
+                        if st.button("←", key="left2") and st.session_state.current_page > 1:
+                          st.session_state.current_page -= 1
+                          st.rerun()
+                    with subc[-1]:
+                        if st.button("→", key="right2") and st.session_state.current_page < total_pages:
+                          st.session_state.current_page += 1
+                          st.rerun()      
+
               else:
                   st.info("No se encontraron resultados para el filtro seleccionado.")
 
