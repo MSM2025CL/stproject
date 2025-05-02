@@ -61,6 +61,8 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
   # Para esto usamos la función de logger.py
 
   datos_uso = get_search_logs()
+  datos_uso = datos_uso[~datos_uso['username'].isin(st.secrets["admins"])]
+  
 
   tipos_reporte = ['Búsquedas totales (todos los usuarios)', 'Búsquedas diarias por usuario']
 
@@ -150,6 +152,8 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
       if 'usuario' in tipo_reporte.lower() and 'todos' in tipo_reporte.lower():
           # Agrupar por usuario y contar las búsquedas
           df_agrupado = filtrados.groupby('username').size().reset_index(name='búsquedas')
+          # Ordenar el dataframe de mayor a menor según la columna 'búsquedas'
+          df_agrupado = df_agrupado.sort_values(by='búsquedas', ascending=False)
           fig = px.bar(
               df_agrupado, 
               x='username', 
@@ -158,20 +162,58 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
               labels={'username': 'Usuario', 'búsquedas': 'Número de búsquedas'}
           )
 
+          # Crear rangos personalizados para los yticks basados en los datos reales
+          max_busquedas = df_agrupado['búsquedas'].max()
+
+          # Crear marcas personalizadas que sean fáciles de leer
+          # Para este caso específico con valores que llegan a ~600
+          ticks = [50*i for i in range(20)]
+          # Filtrar solo los ticks que son relevantes para nuestros datos
+          ticks = [t for t in ticks if t <= max_busquedas + 50]
+
+          # Actualizar la configuración del gráfico
           fig.update_layout(
-          yaxis=dict(
-              dtick=1, 
-              tickmode='linear',
-              title=dict(
-                  text="<b>Número de búsquedas</b>",
-                  font=dict(size=20)  
-              )
-          ),
-          xaxis=dict(dtick=1, tickmode='linear',
-              title=dict(
-                  text="<b>Usuario</b>",
-                  font=dict(size=20) 
-              )
+              yaxis=dict(
+                  tickmode='array',
+                  tickvals=ticks,
+                  range=[0, max_busquedas * 1.1],  # Dar un poco de espacio arriba
+                  title=dict(
+                      text="<b>Total de búsquedas</b>",
+                      font=dict(size=20)
+                  ),
+                  gridcolor='lightgray',  # Líneas de cuadrícula más sutiles
+                  # Garantizar que las líneas de cuadrícula aparezcan en cada marca
+                  showgrid=True
+              ),
+              xaxis=dict(
+                  title=dict(
+                      text="<b>Usuario</b>",
+                      font=dict(size=20)
+                  )
+              ),
+              # Mejorar el diseño general
+              plot_bgcolor='white',  # Fondo blanco para mejor legibilidad
+              margin=dict(t=50, r=20, b=100, l=50),  # Márgenes para evitar cortes
+          )
+
+          # Agregar etiquetas de valor encima de cada barra para facilitar la lectura
+          fig.update_traces(
+              texttemplate='%{y}',  # Mostrar el valor exacto
+              textposition='outside',  # Colocar el texto fuera de la barra
+              textfont=dict(size=14)  # Tamaño de fuente adecuado
+          )
+
+          # Opcional: Agregar una línea de promedio para dar contexto
+          promedio = df_agrupado['búsquedas'].mean()
+          fig.add_hline(
+              y=promedio, 
+              line_dash="dash", 
+              line_color="red",
+              annotation_text=f"Promedio: {promedio:.1f}",
+              annotation_position="top right",
+              annotation_font=dict(
+              color="red",  # Aquí se define el color rojo para el texto
+              size=14
           )
           )
 
@@ -190,20 +232,58 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
               labels={'día': 'Día del mes', 'búsquedas': 'Número de búsquedas'}
           )
 
+          # Crear rangos personalizados para los yticks basados en los datos reales
+          max_busquedas = df_agrupado['búsquedas'].max()
+
+          # Crear marcas personalizadas que sean fáciles de leer
+          # Para este caso específico con valores que llegan a ~600
+          ticks = [50*i for i in range(20)]
+          # Filtrar solo los ticks que son relevantes para nuestros datos
+          ticks = [t for t in ticks if t <= max_busquedas + 50]
+
+          # Actualizar la configuración del gráfico
           fig.update_layout(
-          yaxis=dict(
-              dtick=1, 
-              tickmode='linear',
-              title=dict(
-                  text="<b>Número de búsquedas</b>",
-                  font=dict(size=20)  
-              )
-          ),
-          xaxis=dict(dtick=1, tickmode='linear',
-              title=dict(
-                  text="<b>Día del mes</b>",
-                  font=dict(size=20)  
-              )
+              yaxis=dict(
+                  tickmode='array',
+                  tickvals=ticks,
+                  range=[0, max_busquedas * 1.1],  # Dar un poco de espacio arriba
+                  title=dict(
+                      text="<b>Número de búsquedas</b>",
+                      font=dict(size=20)
+                  ),
+                  gridcolor='lightgray',  # Líneas de cuadrícula más sutiles
+                  # Garantizar que las líneas de cuadrícula aparezcan en cada marca
+                  showgrid=True
+              ),
+              xaxis=dict(dtick=1, tickmode='linear',
+                  title=dict(
+                      text="<b>Día del mes</b>",
+                      font=dict(size=20)  
+                  )
+              ),
+              # Mejorar el diseño general
+              plot_bgcolor='white',  # Fondo blanco para mejor legibilidad
+              margin=dict(t=50, r=20, b=100, l=50),  # Márgenes para evitar cortes
+          )
+
+          # Agregar etiquetas de valor encima de cada barra para facilitar la lectura
+          fig.update_traces(
+              texttemplate='%{y}',  # Mostrar el valor exacto
+              textposition='outside',  # Colocar el texto fuera de la barra
+              textfont=dict(size=14)  # Tamaño de fuente adecuado
+          )
+
+          # Opcional: Agregar una línea de promedio para dar contexto
+          promedio = df_agrupado['búsquedas'].mean()
+          fig.add_hline(
+              y=promedio, 
+              line_dash="dash", 
+              line_color="red",
+              annotation_text=f"Promedio: {promedio:.1f}",
+              annotation_position="top right",
+              annotation_font=dict(
+              color="red",  # Aquí se define el color rojo para el texto
+              size=14
           )
           )
       return fig
@@ -229,6 +309,8 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
       if 'usuario' in tipo_reporte.lower() and 'todos' in tipo_reporte.lower():
           # Agrupar por usuario y contar las búsquedas
           df_agrupado = filtrados.groupby('username').size().reset_index(name='búsquedas')
+          # Ordenar el dataframe de mayor a menor según la columna 'búsquedas'
+          df_agrupado = df_agrupado.sort_values(by='búsquedas', ascending=False)
           fig = px.bar(
               df_agrupado, 
               x='username', 
@@ -237,21 +319,61 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
               labels={'username': 'Usuario', 'búsquedas': 'Número de búsquedas'}
           )
 
+          
+          # Crear rangos personalizados para los yticks basados en los datos reales
+          max_busquedas = df_agrupado['búsquedas'].max()
+
+          # Crear marcas personalizadas que sean fáciles de leer
+          # Para este caso específico con valores que llegan a ~600
+          ticks = [50*i for i in range(20)]
+          # Filtrar solo los ticks que son relevantes para nuestros datos
+          ticks = [t for t in ticks if t <= max_busquedas + 50]
+
+          # Actualizar la configuración del gráfico
           fig.update_layout(
               yaxis=dict(
-                  dtick=1,
-                  tickmode='linear',
+                  tickmode='array',
+                  tickvals=ticks,
+                  range=[0, max_busquedas * 1.1],  # Dar un poco de espacio arriba
                   title=dict(
                       text="<b>Total de búsquedas</b>",
-                      font=dict(size=20)  
-                  )
+                      font=dict(size=20)
+                  ),
+                  gridcolor='lightgray',  # Líneas de cuadrícula más sutiles
+                  # Garantizar que las líneas de cuadrícula aparezcan en cada marca
+                  showgrid=True
               ),
               xaxis=dict(
                   title=dict(
                       text="<b>Usuario</b>",
-                      font=dict(size=20)  
+                      font=dict(size=20)
                   )
-              ))
+              ),
+              # Mejorar el diseño general
+              plot_bgcolor='white',  # Fondo blanco para mejor legibilidad
+              margin=dict(t=50, r=20, b=100, l=50),  # Márgenes para evitar cortes
+          )
+
+          # Agregar etiquetas de valor encima de cada barra para facilitar la lectura
+          fig.update_traces(
+              texttemplate='%{y}',  # Mostrar el valor exacto
+              textposition='outside',  # Colocar el texto fuera de la barra
+              textfont=dict(size=14)  # Tamaño de fuente adecuado
+          )
+
+          # Opcional: Agregar una línea de promedio para dar contexto
+          promedio = df_agrupado['búsquedas'].mean()
+          fig.add_hline(
+              y=promedio, 
+              line_dash="dash", 
+              line_color="red",
+              annotation_text=f"Promedio: {promedio:.1f}",
+              annotation_position="top right",
+              annotation_font=dict(
+              color="red",  # Aquí se define el color rojo para el texto
+              size=14
+          )
+          )
           
       elif 'usuario' in tipo_reporte.lower() and 'todos' not in tipo_reporte.lower():
           # Seleccionar el usuario "busqueda_usuario"
@@ -267,21 +389,60 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
               labels={'día': 'Día del mes', 'búsquedas': 'Número de búsquedas'}
               )
       
+          # Crear rangos personalizados para los yticks basados en los datos reales
+          max_busquedas = df_agrupado['búsquedas'].max()
+
+          # Crear marcas personalizadas que sean fáciles de leer
+          # Para este caso específico con valores que llegan a ~600
+          ticks = [10*i for i in range(20)]
+          # Filtrar solo los ticks que son relevantes para nuestros datos
+          ticks = [t for t in ticks if t <= max_busquedas + 50]
+
+          # Actualizar la configuración del gráfico
           fig.update_layout(
               yaxis=dict(
-                  dtick=1,
-                  tickmode='linear',
+                  tickmode='array',
+                  tickvals=ticks,
+                  range=[0, max_busquedas * 1.1],  # Dar un poco de espacio arriba
                   title=dict(
-                      text="<b>Total de búsquedas</b>",
+                      text="<b>Número de búsquedas</b>",
+                      font=dict(size=20)
+                  ),
+                  gridcolor='lightgray',  # Líneas de cuadrícula más sutiles
+                  # Garantizar que las líneas de cuadrícula aparezcan en cada marca
+                  showgrid=True
+              ),
+              xaxis=dict(dtick=1, tickmode='linear',
+                  title=dict(
+                      text="<b>Día del mes</b>",
                       font=dict(size=20)  
                   )
               ),
-              xaxis=dict(
-                  title=dict(
-                      text="<b>Día</b>",
-                      font=dict(size=20)  
-                  )
-              ))
+              # Mejorar el diseño general
+              plot_bgcolor='white',  # Fondo blanco para mejor legibilidad
+              margin=dict(t=50, r=20, b=100, l=50),  # Márgenes para evitar cortes
+          )
+
+          # Agregar etiquetas de valor encima de cada barra para facilitar la lectura
+          fig.update_traces(
+              texttemplate='%{y}',  # Mostrar el valor exacto
+              textposition='outside',  # Colocar el texto fuera de la barra
+              textfont=dict(size=14)  # Tamaño de fuente adecuado
+          )
+
+          # Opcional: Agregar una línea de promedio para dar contexto
+          promedio = df_agrupado['búsquedas'].mean()
+          fig.add_hline(
+              y=promedio, 
+              line_dash="dash", 
+              line_color="red",
+              annotation_text=f"Promedio: {promedio:.1f}",
+              annotation_position="top right",
+              annotation_font=dict(
+              color="red",  # Aquí se define el color rojo para el texto
+              size=14
+          )
+          )
       
       return fig
 
@@ -308,6 +469,8 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
           if 'usuario' in tipo_reporte.lower() and 'todos' in tipo_reporte.lower():
             # Agrupar por usuario y contar las búsquedas
             df_agrupado = filtrados.groupby('username').size().reset_index(name='búsquedas')
+            # Ordenar el dataframe de mayor a menor según la columna 'búsquedas'
+            df_agrupado = df_agrupado.sort_values(by='búsquedas', ascending=False)
             fig = px.bar(
                 df_agrupado, 
                 x='username', 
@@ -315,20 +478,58 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
                 title=f'Total de búsquedas por usuario ({fecha.strftime("%d/%m/%Y")})'
             )
 
+            # Crear rangos personalizados para los yticks basados en los datos reales
+            max_busquedas = df_agrupado['búsquedas'].max()
+
+            # Crear marcas personalizadas que sean fáciles de leer
+            # Para este caso específico con valores que llegan a ~600
+            ticks = [50*i for i in range(20)]
+            # Filtrar solo los ticks que son relevantes para nuestros datos
+            ticks = [t for t in ticks if t <= max_busquedas + 50]
+
+            # Actualizar la configuración del gráfico
             fig.update_layout(
-            yaxis=dict(
-                dtick=1, 
-                tickmode='linear',
-                title=dict(
-                    text="<b>Total de búsquedas</b>",
-                    font=dict(size=20) 
-                )
-            ),
-            xaxis=dict(
-                title=dict(
-                    text="<b>Usuario</b>",
-                    font=dict(size=20)  
-                )
+                yaxis=dict(
+                    tickmode='array',
+                    tickvals=ticks,
+                    range=[0, max_busquedas * 1.1],  # Dar un poco de espacio arriba
+                    title=dict(
+                        text="<b>Total de búsquedas</b>",
+                        font=dict(size=20)
+                    ),
+                    gridcolor='lightgray',  # Líneas de cuadrícula más sutiles
+                    # Garantizar que las líneas de cuadrícula aparezcan en cada marca
+                    showgrid=True
+                ),
+                xaxis=dict(
+                    title=dict(
+                        text="<b>Usuario</b>",
+                        font=dict(size=20)
+                    )
+                ),
+                # Mejorar el diseño general
+                plot_bgcolor='white',  # Fondo blanco para mejor legibilidad
+                margin=dict(t=50, r=20, b=100, l=50),  # Márgenes para evitar cortes
+            )
+
+            # Agregar etiquetas de valor encima de cada barra para facilitar la lectura
+            fig.update_traces(
+                texttemplate='%{y}',  # Mostrar el valor exacto
+                textposition='outside',  # Colocar el texto fuera de la barra
+                textfont=dict(size=14)  # Tamaño de fuente adecuado
+            )
+
+            # Opcional: Agregar una línea de promedio para dar contexto
+            promedio = df_agrupado['búsquedas'].mean()
+            fig.add_hline(
+                y=promedio, 
+                line_dash="dash", 
+                line_color="red",
+                annotation_text=f"Promedio: {promedio:.1f}",
+                annotation_position="top right",
+                annotation_font=dict(
+                color="red",  # Aquí se define el color rojo para el texto
+                size=14
             )
             )
           elif 'usuario' in tipo_reporte.lower() and 'todos' not in tipo_reporte.lower():
@@ -346,22 +547,60 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
                   title=f'Total de búsquedas por usuario ({fecha.strftime("%d/%m/%Y")})'
               )
 
+              # Crear rangos personalizados para los yticks basados en los datos reales
+              max_busquedas = df_agrupado['búsquedas'].max()
+
+              # Crear marcas personalizadas que sean fáciles de leer
+              # Para este caso específico con valores que llegan a ~600
+              ticks = [5*i for i in range(20)]
+              # Filtrar solo los ticks que son relevantes para nuestros datos
+              ticks = [t for t in ticks if t <= max_busquedas + 50]
+
+              # Actualizar la configuración del gráfico
               fig.update_layout(
                   yaxis=dict(
-                      dtick=1, 
-                      tickmode='linear',
+                      tickmode='array',
+                      tickvals=ticks,
+                      range=[0, max_busquedas * 1.1],  # Dar un poco de espacio arriba
                       title=dict(
-                          text="<b>Total de búsquedas</b>",
-                          font=dict(size=20) 
+                          text="<b>Número de búsquedas</b>",
+                          font=dict(size=20)
+                      ),
+                      gridcolor='lightgray',  # Líneas de cuadrícula más sutiles
+                      # Garantizar que las líneas de cuadrícula aparezcan en cada marca
+                      showgrid=True
+                  ),
+                  xaxis=dict(dtick=1, tickmode='linear',
+                      title=dict(
+                          text="<b>Día del mes</b>",
+                          font=dict(size=20)  
                       )
                   ),
-                  xaxis=dict(
-                      dtick=1, 
-                      tickmode='linear',
-                      title=dict(
-                          text="<b>Hora</b>",
-                          font=dict(size=20)  
-                  )))                    
+                  # Mejorar el diseño general
+                  plot_bgcolor='white',  # Fondo blanco para mejor legibilidad
+                  margin=dict(t=50, r=20, b=100, l=50),  # Márgenes para evitar cortes
+              )
+
+              # Agregar etiquetas de valor encima de cada barra para facilitar la lectura
+              fig.update_traces(
+                  texttemplate='%{y}',  # Mostrar el valor exacto
+                  textposition='outside',  # Colocar el texto fuera de la barra
+                  textfont=dict(size=14)  # Tamaño de fuente adecuado
+              )
+
+              # Opcional: Agregar una línea de promedio para dar contexto
+              promedio = df_agrupado['búsquedas'].mean()
+              fig.add_hline(
+                  y=promedio, 
+                  line_dash="dash", 
+                  line_color="red",
+                  annotation_text=f"Promedio: {promedio:.1f}",
+                  annotation_position="top right",
+                  annotation_font=dict(
+                  color="red",  # Aquí se define el color rojo para el texto
+                  size=14
+              )
+              )                 
       return fig
 
   def generar_grafico_personalizado(datos, fecha_inicio, fecha_fin, tipo_reporte):
@@ -401,12 +640,63 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
       if 'usuario' in tipo_reporte.lower() and 'todos' in tipo_reporte.lower():
           # Agrupar por usuario  y contar las búsquedas
           df_agrupado = filtrados.groupby(['username']).size().reset_index(name='búsquedas')
+          # Ordenar el dataframe de mayor a menor según la columna 'búsquedas'
+          df_agrupado = df_agrupado.sort_values(by='búsquedas', ascending=False)
           fig = px.bar(
               df_agrupado, 
               x='username', 
               y='búsquedas',
               title=f'Búsquedas por usuario ({fecha_inicio.strftime("%d/%m/%Y")} - {fecha_fin.strftime("%d/%m/%Y")})',
               labels={'username': 'Usuario', 'búsquedas': 'Número de búsquedas'}
+          )
+
+          # Crear rangos personalizados para los yticks basados en los datos reales
+          max_busquedas = df_agrupado['búsquedas'].max()
+
+          # Crear marcas personalizadas que sean fáciles de leer
+          # Para este caso específico con valores que llegan a ~600
+          ticks = [50*i for i in range(20)]
+          # Filtrar solo los ticks que son relevantes para nuestros datos
+          ticks = [t for t in ticks if t <= max_busquedas + 50]
+
+          # Actualizar la configuración del gráfico
+          fig.update_layout(
+              yaxis=dict(
+                  tickmode='array',
+                  tickvals=ticks,
+                  range=[0, max_busquedas * 1.1],  # Dar un poco de espacio arriba
+                  title=dict(
+                      text="<b>Total de búsquedas</b>",
+                      font=dict(size=20)
+                  ),
+                  gridcolor='lightgray',  # Líneas de cuadrícula más sutiles
+                  # Garantizar que las líneas de cuadrícula aparezcan en cada marca
+                  showgrid=True
+              ),
+              # Mejorar el diseño general
+              plot_bgcolor='white',  # Fondo blanco para mejor legibilidad
+              margin=dict(t=50, r=20, b=100, l=50),  # Márgenes para evitar cortes
+          )
+
+          # Agregar etiquetas de valor encima de cada barra para facilitar la lectura
+          fig.update_traces(
+              texttemplate='%{y}',  # Mostrar el valor exacto
+              textposition='outside',  # Colocar el texto fuera de la barra
+              textfont=dict(size=14)  # Tamaño de fuente adecuado
+          )
+
+          # Opcional: Agregar una línea de promedio para dar contexto
+          promedio = df_agrupado['búsquedas'].mean()
+          fig.add_hline(
+              y=promedio, 
+              line_dash="dash", 
+              line_color="red",
+              annotation_text=f"Promedio: {promedio:.1f}",
+              annotation_position="top right",
+              annotation_font=dict(
+              color="red",  # Aquí se define el color rojo para el texto
+              size=14
+          )
           )
       elif 'usuario' in tipo_reporte.lower() and 'todos' not in tipo_reporte.lower():
           # Seleccionar el usuario "busqueda_usuario" y agrupar por dias o meses segun corresponda
@@ -419,6 +709,55 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
               title=f'Búsquedas totales ({fecha_inicio.strftime("%d/%m/%Y")} - {fecha_fin.strftime("%d/%m/%Y")})',
               labels={'grupo': label_x, 'búsquedas': 'Número de búsquedas'}
           )
+
+          # Crear rangos personalizados para los yticks basados en los datos reales
+          max_busquedas = df_agrupado['búsquedas'].max()
+
+          # Crear marcas personalizadas que sean fáciles de leer
+          # Para este caso específico con valores que llegan a ~600
+          ticks = [5*i for i in range(20)]
+          # Filtrar solo los ticks que son relevantes para nuestros datos
+          ticks = [t for t in ticks if t <= max_busquedas + 50]
+
+          # Actualizar la configuración del gráfico
+          fig.update_layout(
+              yaxis=dict(
+                  tickmode='array',
+                  tickvals=ticks,
+                  range=[0, max_busquedas * 1.1],  # Dar un poco de espacio arriba
+                  title=dict(
+                      text="<b>Número de búsquedas</b>",
+                      font=dict(size=20)
+                  ),
+                  gridcolor='lightgray',  # Líneas de cuadrícula más sutiles
+                  # Garantizar que las líneas de cuadrícula aparezcan en cada marca
+                  showgrid=True
+              ),             
+              # Mejorar el diseño general
+              plot_bgcolor='white',  # Fondo blanco para mejor legibilidad
+              margin=dict(t=50, r=20, b=100, l=50),  # Márgenes para evitar cortes
+          )
+
+          # Agregar etiquetas de valor encima de cada barra para facilitar la lectura
+          fig.update_traces(
+              texttemplate='%{y}',  # Mostrar el valor exacto
+              textposition='outside',  # Colocar el texto fuera de la barra
+              textfont=dict(size=14)  # Tamaño de fuente adecuado
+          )
+
+          # Opcional: Agregar una línea de promedio para dar contexto
+          promedio = df_agrupado['búsquedas'].mean()
+          fig.add_hline(
+              y=promedio, 
+              line_dash="dash", 
+              line_color="red",
+              annotation_text=f"Promedio: {promedio:.1f}",
+              annotation_position="top right",
+              annotation_font=dict(
+              color="red",  # Aquí se define el color rojo para el texto
+              size=14
+          )
+          )  
       
       return fig
 
@@ -446,7 +785,7 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
 
   # Obtener los datos
   datos_uso = get_search_logs()
-
+  datos_uso = datos_uso[~datos_uso['username'].isin(st.secrets["admins"])]
   col_left, col_right = st.columns([1, 1])
   with col_left:
       subcols_left = st.columns([1, 1, 1])
