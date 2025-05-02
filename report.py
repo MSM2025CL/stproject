@@ -237,7 +237,7 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
 
           # Crear marcas personalizadas que sean fáciles de leer
           # Para este caso específico con valores que llegan a ~600
-          ticks = [50*i for i in range(20)]
+          ticks = [10*i for i in range(20)]
           # Filtrar solo los ticks que son relevantes para nuestros datos
           ticks = [t for t in ticks if t <= max_busquedas + 50]
 
