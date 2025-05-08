@@ -91,7 +91,8 @@ def log_search(username, search_params, considerar_ofertas, proveedores):
         search_query = " ".join(search_terms)
         
         # Preparar datos para el log
-        timestamp = datetime.datetime.now(pytz.timezone("America/Santiago")).strftime("%d-%m-%Y %H:%M:%S")
+        timestamp = datetime.datetime.now(pytz.timezone("America/Santiago"))#.strftime("%d-%m-%Y %H:%M:%S")
+        timestamp = f'=DATE({timestamp.year},{timestamp.month},{timestamp.day})+TIME({timestamp.hour},{timestamp.minute},{timestamp.second})'
         log_data = [timestamp, username]
         for i in range(4):
             if i > 0:
@@ -105,7 +106,16 @@ def log_search(username, search_params, considerar_ofertas, proveedores):
         log_data.append(provs)
             
         # Agregar una nueva fila con los datos
-        worksheet.append_row(log_data)
+        worksheet.append_row(log_data, value_input_option='USER_ENTERED')
+        # Añadir el registro
+
+        # Obtener el número de la última fila añadida
+        ultima_fila = len(worksheet.get_all_values())
+
+        # Aplicar formato de día/mes/año hora:minuto:segundo a la celda de fecha
+        # Esto formatea la visualización pero mantiene el tipo de dato como fecha
+        celda_fecha = f'A{ultima_fila}'  # Asumiendo que la fecha está en la columna A
+        worksheet.format(celda_fecha, {"numberFormat": {"type": "DATE_TIME", "pattern": "dd/MM/yyyy HH:mm:ss"}})
         
         logger.info(f"Búsqueda registrada para {username}: {search_query}")
         return True
