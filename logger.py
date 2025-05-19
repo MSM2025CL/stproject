@@ -157,7 +157,7 @@ def get_search_logs():
         
         # Si el DataFrame no está vacío, convertir timestamp a datetime
         if not df.empty and 'timestamp' in df.columns:
-            df['timestamp'] = pd.to_datetime(df['timestamp'], format='%d-%m-%Y %H:%M:%S')
+            df['timestamp'] = pd.to_datetime(df['timestamp'], format='mixed', dayfirst=True)
         
         return df
     

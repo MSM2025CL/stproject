@@ -63,7 +63,6 @@ if "authenticated" in st.session_state and st.session_state["authenticated"] and
   datos_uso = get_search_logs()
   datos_uso = datos_uso[~datos_uso['username'].isin(st.secrets["admins"])]
   
-
   tipos_reporte = ['Búsquedas totales (todos los usuarios)', 'Búsquedas diarias por usuario']
 
   meses = {'Enero': 1, 'Febrero': 2, 'Marzo': 3, 'Abril': 4, 'Mayo': 5, 'Junio': 6, 'Julio': 7, 'Agosto': 8, 'Septiembre': 9, 'Octubre': 10, 'Noviembre': 11, 'Diciembre': 12}
