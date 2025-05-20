@@ -220,6 +220,9 @@ def main():
               st.session_state[f'logical_{i}'] = ''
           if f'contains_{i}' not in st.session_state:
               st.session_state[f'contains_{i}'] = ''
+    
+      if 'skusearch' not in st.session_state:
+          st.session_state['skusearch'] = ''
       
       # Determine file path
       file_path = Path("Datos/datos_app.csv")
@@ -308,24 +311,29 @@ def main():
           
       col, colr = st.columns([1.5, 1])
       with col:
-          subc = st.columns([1.5, 2, 2.5, 2])
+          subc = st.columns([1.5, 2, 1.8, 3])
+
           with subc[0]:              
             considerar_ofertas = ["No", "Sí"]
             seleccion_ofertas = st.radio("Considerar ofertas:", considerar_ofertas, horizontal=True)
           with subc[1]:
             considerar_descripcion = st.checkbox('Buscar sólo en "Nombre Producto"')
           
-          with subc[2]:
+          with subc[-1]:
+            incluir_excluir = ["Incluir", "Excluir"]
+            seleccion_provs = st.radio("Filtrar proveedor:", incluir_excluir, horizontal=True, label_visibility='collapsed')
             provs = sorted(list(df['Proveedor'].unique()))
-            buscar_en_prov = st.multiselect('Filtrar Proveedor:', provs)
-          
-          with subc[3]:
+            buscar_en_prov = st.multiselect('', provs, placeholder='Proveedores', label_visibility='collapsed')
+          with subc[2]:
             mostrar_stock = st.radio("Mostrar productos sin stock:", considerar_ofertas, horizontal=True)
+
 
       with colr:
           subc = st.columns([1.5, 1.5, 1, 1, 2, 0.1, 0.9])
+
           with subc[-3]:
-            buscar_sku = st.text_input(placeholder="Buscar SKU", key='skusearch', label='', label_visibility='collapsed')
+            buscar_sku = st.text_input(placeholder="Buscar SKU", key='skutext', label='', label_visibility='collapsed', value=st.session_state['skusearch'])
+            st.session_state['skusearch'] = buscar_sku
           with subc[-2]:
             boton_sku = st.button("🔍")
 
@@ -333,13 +341,14 @@ def main():
       col1, col2 = st.columns([1, 1])
       with col1:
           #subc = st.columns([1.5, 1.5, 1.5, 0.1, 0.9, 1, 1])
-          subc = st.columns([1.5, 1.5, 1.5, 0.5, 1.5, 0.1, 0.9])
+          subc = st.columns([1.5, 1.5, 1.5, 2, 0.1, 0.9])
           with subc[0]:              
             # Search button
             search_clicked = st.button("🔍 Buscar")
 
           with subc[1]:
             if st.button("Limpiar", key="limpiar"):
+                # Clear search state variables
                 st.session_state[f'search_0'] = ''
                 st.session_state[f'logical_0'] = ''
                 st.session_state[f'contains_0'] = ''
@@ -352,10 +361,17 @@ def main():
                 st.session_state[f'search_3'] = ''
                 st.session_state[f'logical_3'] = ''
                 st.session_state[f'contains_3'] = ''
+                
+                # Clear search results
                 st.session_state['search_results'] = None
                 st.session_state['search_performed'] = False
                 st.session_state['result_providers'] = ['Todos']
                 st.session_state['post_search_provider'] = 'Todos'
+                
+                # Clear SKU search
+                st.session_state['skusearch'] = ''
+                
+                # Force a rerun to refresh all widgets with cleared values
                 st.rerun()
           with subc[2]:
               if st.session_state['username'] in st.secrets["admins"]:
@@ -363,9 +379,8 @@ def main():
 
                   if ver_datos:
                       st.switch_page("report.py")
+                              
               
-
-    
       with col2:
           subc = st.columns([1, 1, 1, 1, 1, 0.25, 0.25])
 
@@ -400,7 +415,7 @@ def main():
 
 
                   # Realizar la búsqueda
-                  search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas, considerar_descripcion, buscar_en_prov, mostrar_stock)
+                  search_results = search.key_search(nsearch_boxes, st.session_state, df, seleccion_ofertas, considerar_descripcion, buscar_en_prov, seleccion_provs, mostrar_stock)
 
                   # Guardar resultados en el estado de la sesión
                   st.session_state['search_results'] = search_results
@@ -510,4 +525,3 @@ def main():
 
    
 main()
-
