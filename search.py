@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion, buscar_en_prov, mostrar_stock):
+def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion, buscar_en_prov, seleccion_provs, mostrar_stock):
 
     if mostrar_stock == "No":
       # First ensure the Stock column contains strings
@@ -14,24 +14,29 @@ def key_search(nsearch, options, df, considerar_ofertas, considerar_descripcion,
 
 
     search_bool = True
-    if buscar_en_prov != []:
-        df = df[df['Proveedor'].isin(buscar_en_prov)]
-        if options[f'search_{0}'].strip() == '':                  
-          if considerar_ofertas == "Sí":
-              # Agregar una columna auxiliar con el menor valor entre A y B
-              df['Min_Val'] = df[['Precio MSM', 'Precio Oferta']].min(axis=1)
 
-              # Ordenar según la nueva columna
-              df = df.sort_values(by=['Min_Val', 'Descripcion'], ascending=True)
+    if seleccion_provs == "Excluir":
+        if buscar_en_prov != []:
+            df = df[~df['Proveedor'].isin(buscar_en_prov)]
+    elif seleccion_provs == "Incluir":
+        if buscar_en_prov != []:
+            df = df[df['Proveedor'].isin(buscar_en_prov)]
+            if options[f'search_{0}'].strip() == '':                  
+                if considerar_ofertas == "Sí":
+                    # Agregar una columna auxiliar con el menor valor entre A y B
+                    df['Min_Val'] = df[['Precio MSM', 'Precio Oferta']].min(axis=1)
 
-              # Eliminar la columna auxiliar si no se necesita
-              df = df.drop(columns=['Min_Val'])
-          else:
-              df = df.sort_values(by=['Precio MSM', 'Descripcion'], ascending=True)
+                    # Ordenar según la nueva columna
+                    df = df.sort_values(by=['Min_Val', 'Descripcion'], ascending=True)
 
-          df = df[df['Precio MSM'] > 0]
-          df = df.drop(columns=['search_text'])
-          return df
+                    # Eliminar la columna auxiliar si no se necesita
+                    df = df.drop(columns=['Min_Val'])
+                else:
+                    df = df.sort_values(by=['Precio MSM', 'Descripcion'], ascending=True)
+
+                df = df[df['Precio MSM'] > 0]
+                df = df.drop(columns=['search_text'])
+                return df
 
     if options[f'search_{0}'] == '':
         return pd.DataFrame()
