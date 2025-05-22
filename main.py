@@ -397,7 +397,7 @@ def main():
                           height=690, 
                           use_container_width=True, 
                           column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=110), "Descripcion": st.column_config.TextColumn("Descripcion", width=420), "Stock": st.column_config.TextColumn("Stock", width=100),
-                          "Comentario": st.column_config.TextColumn("Comentario", width=200), "Url": st.column_config.LinkColumn("Codigo Prov", width=800)},
+                          "Comentario": st.column_config.TextColumn("Comentario", width=200), "Url": st.column_config.LinkColumn("Url", width=800)},
                           disabled=True)
         except:
             pass
@@ -486,7 +486,7 @@ def main():
                     height=690, 
                     use_container_width=True, 
                     column_config={"Codigo Prov": st.column_config.LinkColumn("Codigo Prov", width=110), "Descripcion": st.column_config.TextColumn("Descripcion", width=420), "Stock": st.column_config.TextColumn("Stock", width=100),
-                    "Comentario": st.column_config.TextColumn("Comentario", width=200), "Url": st.column_config.LinkColumn("Codigo Prov", width=800)},
+                    "Comentario": st.column_config.TextColumn("Comentario", width=200), "Url": st.column_config.LinkColumn("Url", width=800)},
                     disabled=True
                 )
 
